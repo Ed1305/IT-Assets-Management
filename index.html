@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Asset Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- SheetJS (XLSX) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        .table-container::-webkit-scrollbar { height: 8px; width: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+        .hidden { display: none !important; }
+        .editable-input { width: 100%; padding: 2px 4px; border: 1px solid #ccc; border-radius: 4px; }
+        .chart-container { height: 200px; width: 100%; position: relative; }
+        .gradient-sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        }
+        .main-dark {
+            background-color: #0b2a4a;
+        }
+        .card-white {
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .branch-filter {
+            background-color: #f0f4f8;
+            border: 1px solid #cbd5e0;
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+<!-- LOGIN SCREEN -->
+<div id="loginContainer" class="flex items-center justify-center min-h-screen bg-gray-200">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">IT Asset Management</h2>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Username</label>
+            <input type="text" id="username" class="w-full px-3 py-2 border rounded-lg" placeholder="admin or user">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 mb-2">Password</label>
+            <input type="password" id="password" class="w-full px-3 py-2 border rounded-lg" placeholder="••••••">
+        </div>
+        <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Login</button>
+        <p class="text-xs text-center mt-4 text-gray-500">Demo: admin/admin or user/user</p>
+    </div>
+</div>
+
+<!-- MAIN APP (hidden initially) -->
+<div id="appContainer" class="hidden flex h-screen">
+    <!-- Sidebar with gradient -->
+    <aside class="w-64 gradient-sidebar text-white flex flex-col shadow-xl">
+        <div class="p-5 border-b border-gray-700">
+            <h1 class="text-lg font-bold">IT Asset Manager</h1>
+            <p class="text-xs text-gray-400 mt-1" id="roleDisplay">Role: <span id="roleSpan"></span></p>
+        </div>
+        <nav class="flex-1 p-3">
+            <ul>
+                <li class="mb-1">
+                    <a href="#" onclick="showSection('dashboard')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
+                        <i class="fas fa-tachometer-alt w-5"></i> Dashboard
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" onclick="showSection('assets')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
+                        <i class="fas fa-list w-5"></i> Assets
+                    </a>
+                </li>
+                <li class="mb-1">
+                    <a href="#" onclick="showSection('quantities')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
+                        <i class="fas fa-chart-bar w-5"></i> Asset Quantities
+                    </a>
+                </li>
+                <li class="mb-1" id="uploadNav" style="display: none;">
+                    <a href="#" onclick="showSection('upload')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
+                        <i class="fas fa-upload w-5"></i> Upload Excel
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="p-3 border-t border-gray-700">
+            <button onclick="logout()" class="w-full flex items-center justify-center p-2 text-sm text-red-400 hover:bg-red-700 hover:text-white rounded-lg transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content with dark blue background -->
+    <main class="flex-1 overflow-auto p-4 main-dark">
+        <!-- Branch filter (light background for visibility) -->
+        <div class="flex items-center mb-4 branch-filter p-2 rounded-lg shadow-sm">
+            <label for="branchFilter" class="text-sm font-medium text-gray-700 mr-3">Branch:</label>
+            <select id="branchFilter" class="border rounded-lg px-3 py-1 text-sm bg-white" onchange="applyBranchFilter()">
+                <option value="ALL">All Branches</option>
+            </select>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="section">
+            <h2 class="text-xl font-semibold mb-4 text-white">Dashboard</h2>
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="card-white p-4 rounded-lg shadow flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-full mr-3"><i class="fas fa-server text-blue-600 text-sm"></i></div>
+                    <div><p class="text-xs text-gray-500">Total Assets</p><p class="text-xl font-bold" id="totalAssets">0</p></div>
+                </div>
+                <div class="card-white p-4 rounded-lg shadow flex items-center">
+                    <div class="p-2 bg-green-100 rounded-full mr-3"><i class="fas fa-dollar-sign text-green-600 text-sm"></i></div>
+                    <div><p class="text-xs text-gray-500">Total Value</p><p class="text-xl font-bold" id="totalValue">R 0</p></div>
+                </div>
+                <div class="card-white p-4 rounded-lg shadow flex items-center">
+                    <div class="p-2 bg-yellow-100 rounded-full mr-3"><i class="fas fa-check-circle text-yellow-600 text-sm"></i></div>
+                    <div><p class="text-xs text-gray-500">In Use</p><p class="text-xl font-bold" id="inUseCount">0</p></div>
+                </div>
+                <div class="card-white p-4 rounded-lg shadow flex items-center">
+                    <div class="p-2 bg-red-100 rounded-full mr-3"><i class="fas fa-trash text-red-600 text-sm"></i></div>
+                    <div><p class="text-xs text-gray-500">Decommissioned</p><p class="text-xl font-bold" id="decomCount">0</p></div>
+                </div>
+            </div>
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div class="card-white p-3 rounded-lg shadow">
+                    <div class="chart-container"><canvas id="typeChart"></canvas></div>
+                </div>
+                <div class="card-white p-3 rounded-lg shadow">
+                    <div class="chart-container"><canvas id="statusChart"></canvas></div>
+                </div>
+                <div class="card-white p-3 rounded-lg shadow">
+                    <div class="chart-container"><canvas id="brandChart"></canvas></div>
+                </div>
+                <div class="card-white p-3 rounded-lg shadow">
+                    <div class="chart-container"><canvas id="decomChart"></canvas></div>
+                </div>
+            </div>
+            <!-- Brand Performance Table -->
+            <div class="card-white p-4 rounded-lg shadow mb-6">
+                <h3 class="text-md font-semibold mb-3">Brand Performance & Recommendation</h3>
+                <div class="overflow-auto text-sm">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-2 text-left">Brand</th>
+                                <th class="px-3 py-2">Count</th>
+                                <th class="px-3 py-2">Avg Price (R)</th>
+                                <th class="px-3 py-2">Decom Rate</th>
+                                <th class="px-3 py-2">Avg Lifespan (yrs)</th>
+                                <th class="px-3 py-2">Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brandTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Top 3 Laptop Recommendations -->
+            <div class="card-white p-4 rounded-lg shadow">
+                <h3 class="text-md font-semibold mb-3">💻 Top 3 Laptop Recommendations</h3>
+                <div id="laptopRecommendations" class="text-sm">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Assets Section -->
+        <div id="assetsSection" class="section hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-white">Assets</h2>
+                <input type="text" id="searchInput" placeholder="Search..." class="px-3 py-1 text-sm border rounded-lg" onkeyup="filterTable()">
+            </div>
+            <div class="card-white p-3 rounded-lg shadow overflow-auto table-container" style="max-height: 70vh;">
+                <table class="min-w-full divide-y divide-gray-200 text-xs" id="assetsTable">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('device_type')">Device Type</th>
+                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('device_name')">Device Name</th>
+                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('brand')">Brand</th>
+                            <th class="px-2 py-1">Assigned To</th>
+                            <th class="px-2 py-1">Serial #</th>
+                            <th class="px-2 py-1">Asset #</th>
+                            <th class="px-2 py-1">Department</th>
+                            <th class="px-2 py-1">Condition</th>
+                            <th class="px-2 py-1">Status</th>
+                            <th class="px-2 py-1">Purchase Date</th>
+                            <th class="px-2 py-1">Price</th>
+                            <th class="px-2 py-1">In Office</th>
+                            <th class="px-2 py-1">Insured</th>
+                            <th class="px-2 py-1">Issue Date</th>
+                            <th class="px-2 py-1">Decom Reason</th>
+                            <th class="px-2 py-1">Repairable</th>
+                            <th class="px-2 py-1" id="editHeader" style="display:none;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+            <!-- Add New Asset Form (Admin only) -->
+            <div id="addForm" class="mt-4 card-white p-4 rounded-lg shadow hidden">
+                <h3 class="text-md font-semibold mb-3">Add New Asset</h3>
+                <form id="newAssetForm" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <input type="text" placeholder="Device Type" id="new_device_type" class="border p-1 rounded">
+                    <input type="text" placeholder="Device Name" id="new_device_name" class="border p-1 rounded">
+                    <input type="text" placeholder="Assigned To" id="new_assigned_to" class="border p-1 rounded">
+                    <input type="text" placeholder="Serial Number" id="new_serial" class="border p-1 rounded">
+                    <input type="text" placeholder="Branch" id="new_branch" class="border p-1 rounded">
+                    <input type="text" placeholder="Asset Number" id="new_asset_num" class="border p-1 rounded">
+                    <input type="text" placeholder="Location" id="new_location" class="border p-1 rounded">
+                    <input type="text" placeholder="Department" id="new_department" class="border p-1 rounded">
+                    <input type="text" placeholder="Condition" id="new_condition" class="border p-1 rounded">
+                    <input type="text" placeholder="Status" id="new_status" class="border p-1 rounded">
+                    <input type="date" placeholder="Purchase Date" id="new_purchase_date" class="border p-1 rounded">
+                    <input type="number" step="0.01" placeholder="Price" id="new_price" class="border p-1 rounded">
+                    <input type="text" placeholder="In Office" id="new_in_office" class="border p-1 rounded">
+                    <input type="text" placeholder="Insured" id="new_insured" class="border p-1 rounded">
+                    <input type="date" placeholder="Headsets Issue Date" id="new_issue_date" class="border p-1 rounded">
+                    <input type="text" placeholder="Decom Reason" id="new_decom_reason" class="border p-1 rounded">
+                    <input type="text" placeholder="Repairable" id="new_repairable" class="border p-1 rounded">
+                    <button type="button" onclick="addAsset()" class="bg-blue-600 text-white py-1 rounded hover:bg-blue-700 col-span-3 text-sm">Add Asset</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Asset Quantities Section -->
+        <div id="quantitiesSection" class="section hidden">
+            <h2 class="text-xl font-semibold mb-4 text-white">Asset Quantities</h2>
+            <div class="card-white p-4 rounded-lg shadow">
+                <div class="mb-3">
+                    <input type="text" id="quantitySearch" placeholder="Search device type..." class="px-3 py-1 text-sm border rounded-lg w-full md:w-64" onkeyup="renderQuantities()">
+                </div>
+                <div class="overflow-auto" style="max-height: 60vh;">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Device Type</th>
+                                <th class="px-4 py-2 text-left">Total Qty</th>
+                                <th class="px-4 py-2 text-left">In Use</th>
+                                <th class="px-4 py-2 text-left">Not In Use</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quantitiesBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section (Admin only) -->
+        <div id="uploadSection" class="section hidden">
+            <h2 class="text-xl font-semibold mb-4 text-white">Upload Excel File</h2>
+            <div class="card-white p-6 rounded-lg shadow max-w-xl">
+                <p class="mb-3 text-sm text-gray-600">Upload your monthly inventory file (Excel format). The data will replace the current assets.</p>
+                <input type="file" id="fileInput" accept=".xlsx, .xls" class="mb-3 text-sm">
+                <button onclick="uploadFile()" class="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 text-sm">Upload</button>
+                <div id="uploadStatus" class="mt-3 text-xs text-gray-500"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ==================== GLOBAL VARIABLES ====================
+    let assets = [];
+    let currentRole = null;
+    let currentSort = { column: 'device_type', asc: true };
+    let searchTerm = '';
+    let selectedBranch = 'ALL';
+    let typeChart, statusChart, brandChart, decomChart;
+
+    // ==================== LOGIN / LOGOUT ====================
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === 'admin' && password === 'admin') {
+            currentRole = 'admin';
+        } else if (username === 'user' && password === 'user') {
+            currentRole = 'user';
+        } else {
+            alert('Invalid credentials. Try admin/admin or user/user');
+            return;
+        }
+        localStorage.setItem('role', currentRole);
+        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('appContainer').classList.remove('hidden');
+        document.getElementById('roleSpan').innerText = currentRole;
+        if (currentRole === 'admin') {
+            document.getElementById('uploadNav').style.display = 'block';
+            document.getElementById('editHeader').style.display = 'table-cell';
+            document.getElementById('addForm').classList.remove('hidden');
+        } else {
+            document.getElementById('uploadNav').style.display = 'none';
+            document.getElementById('editHeader').style.display = 'none';
+            document.getElementById('addForm').classList.add('hidden');
+        }
+        const stored = localStorage.getItem('assets');
+        if (stored) {
+            assets = JSON.parse(stored);
+            populateBranchFilter();
+            renderAll();
+        }
+        showSection('dashboard');
+    }
+
+    function logout() {
+        currentRole = null;
+        localStorage.removeItem('role');
+        document.getElementById('loginContainer').classList.remove('hidden');
+        document.getElementById('appContainer').classList.add('hidden');
+    }
+
+    function showSection(section) {
+        document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+        document.getElementById(section + 'Section').classList.remove('hidden');
+        if (section === 'dashboard') renderDashboard();
+        if (section === 'assets') renderTable();
+        if (section === 'quantities') renderQuantities();
+    }
+
+    // ==================== BRANCH FILTER ====================
+    function populateBranchFilter() {
+        const branches = [...new Set(assets.map(a => a.branch).filter(b => b))];
+        const select = document.getElementById('branchFilter');
+        select.innerHTML = '<option value="ALL">All Branches</option>';
+        branches.forEach(b => {
+            const option = document.createElement('option');
+            option.value = b;
+            option.textContent = b;
+            select.appendChild(option);
+        });
+        if (selectedBranch !== 'ALL' && branches.includes(selectedBranch)) {
+            select.value = selectedBranch;
+        } else {
+            select.value = 'ALL';
+            selectedBranch = 'ALL';
+        }
+    }
+
+    function applyBranchFilter() {
+        selectedBranch = document.getElementById('branchFilter').value;
+        renderAll();
+        if (!document.getElementById('quantitiesSection').classList.contains('hidden')) {
+            renderQuantities();
+        }
+    }
+
+    function getFilteredAssets() {
+        if (selectedBranch === 'ALL') return assets;
+        return assets.filter(a => a.branch === selectedBranch);
+    }
+
+    // ==================== EXCEL UPLOAD ====================
+    function uploadFile() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) { alert('Select a file'); return; }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            let allRows = [];
+            workbook.SheetNames.forEach(sheetName => {
+                const sheet = workbook.Sheets[sheetName];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                if (rows.length < 2) return;
+                const headers = rows[0];
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length === 0 || row.every(cell => cell === '')) continue;
+                    const obj = {};
+                    headers.forEach((h, idx) => { obj[h] = row[idx] !== undefined ? row[idx] : ''; });
+                    allRows.push(obj);
+                }
+            });
+            assets = allRows.map((row, index) => ({
+                id: index + 1,
+                device_type: row['Device Type'] || '',
+                device_name: row['Device Name'] || '',
+                brand: extractBrand(row['Device Name'] || ''),
+                assigned_to: row['Assigned to'] || '',
+                serial_number: row['Serial Number'] || '',
+                branch: row['Branch'] || '',
+                asset_number: row['Asset number'] || '',
+                location: row['Location'] || '',
+                department: row['Department'] || '',
+                condition: row['Condition'] || '',
+                status: row['Status'] || '',
+                date_of_purchase: formatDate(row['Date of Purchase']),
+                price_per_unit: parseFloat(row['Price per unit']) || 0,
+                in_office: row['In office / Out of office'] || '',
+                insured: row['Insured/ Not insured'] || '',
+                headsets_issue_date: formatDate(row['Headsets issue date']),
+                reason_decommission: row['Reason for Decommission'] || '',
+                repairable: row['Repairable/Unrepairable'] || ''
+            }));
+            localStorage.setItem('assets', JSON.stringify(assets));
+            populateBranchFilter();
+            selectedBranch = 'ALL';
+            document.getElementById('branchFilter').value = 'ALL';
+            document.getElementById('uploadStatus').innerText = `Loaded ${assets.length} assets.`;
+            renderAll();
+            showSection('dashboard');
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function extractBrand(deviceName) {
+        if (!deviceName) return '';
+        const parts = deviceName.split(' ');
+        return parts[0] || '';
+    }
+
+    function formatDate(dateVal) {
+        if (!dateVal) return '';
+        if (typeof dateVal === 'number') {
+            const date = new Date((dateVal - 25569) * 86400 * 1000);
+            return date.toISOString().split('T')[0];
+        }
+        if (typeof dateVal === 'string') {
+            const d = new Date(dateVal);
+            if (!isNaN(d)) return d.toISOString().split('T')[0];
+        }
+        return '';
+    }
+
+    // ==================== RENDER DASHBOARD ====================
+    function renderAll() {
+        renderDashboard();
+        renderTable();
+    }
+
+    function renderDashboard() {
+        const filtered = getFilteredAssets();
+        if (!filtered.length) {
+            document.getElementById('totalAssets').innerText = 0;
+            document.getElementById('totalValue').innerText = 'R 0';
+            document.getElementById('inUseCount').innerText = 0;
+            document.getElementById('decomCount').innerText = 0;
+            if (typeChart) typeChart.destroy();
+            if (statusChart) statusChart.destroy();
+            if (brandChart) brandChart.destroy();
+            if (decomChart) decomChart.destroy();
+            document.getElementById('brandTableBody').innerHTML = '';
+            document.getElementById('laptopRecommendations').innerHTML = '';
+            return;
+        }
+        updateKPIs(filtered);
+        updateCharts(filtered);
+        renderBrandTable(filtered);
+        renderLaptopRecommendations(filtered);
+    }
+
+    function updateKPIs(filtered) {
+        document.getElementById('totalAssets').innerText = filtered.length;
+        const totalValue = filtered.reduce((sum, a) => sum + (a.price_per_unit || 0), 0).toFixed(2);
+        document.getElementById('totalValue').innerText = 'R ' + totalValue;
+        const inUse = filtered.filter(a => a.status && a.status.toUpperCase().includes('IN USE')).length;
+        document.getElementById('inUseCount').innerText = inUse;
+        const decom = filtered.filter(a => a.status && a.status.toUpperCase().includes('DECOMMISSIONED')).length;
+        document.getElementById('decomCount').innerText = decom;
+    }
+
+    function updateCharts(filtered) {
+        if (typeChart) typeChart.destroy();
+        if (statusChart) statusChart.destroy();
+        if (brandChart) brandChart.destroy();
+        if (decomChart) decomChart.destroy();
+
+        // Top Device Types (horizontal bar)
+        const typeCounts = {};
+        filtered.forEach(a => { typeCounts[a.device_type] = (typeCounts[a.device_type] || 0) + 1; });
+        const sortedTypes = Object.entries(typeCounts).sort((a,b) => b[1] - a[1]).slice(0,10);
+        const typeLabels = sortedTypes.map(t => t[0]);
+        const typeData = sortedTypes.map(t => t[1]);
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        typeChart = new Chart(typeCtx, {
+            type: 'bar',
+            data: {
+                labels: typeLabels,
+                datasets: [{
+                    label: 'Count',
+                    data: typeData,
+                    backgroundColor: '#3b82f6',
+                    borderColor: '#2563eb',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Top Device Types', color: '#333' }
+                },
+                scales: { x: { ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // Status distribution
+        const statusCounts = {};
+        filtered.forEach(a => { statusCounts[a.status] = (statusCounts[a.status] || 0) + 1; });
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        statusChart = new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(statusCounts),
+                datasets: [{ label: 'Count', data: Object.values(statusCounts), backgroundColor: '#3b82f6' }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Assets by Status', color: '#333' }
+                }
+            }
+        });
+
+        // Top Brands
+        const brandCounts = {};
+        filtered.forEach(a => { if (a.brand) brandCounts[a.brand] = (brandCounts[a.brand] || 0) + 1; });
+        const sortedBrands = Object.entries(brandCounts).sort((a,b) => b[1] - a[1]).slice(0,10);
+        const brandCtx = document.getElementById('brandChart').getContext('2d');
+        brandChart = new Chart(brandCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedBrands.map(b => b[0]),
+                datasets: [{ label: 'Count', data: sortedBrands.map(b => b[1]), backgroundColor: '#10b981' }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Top 10 Brands', color: '#333' }
+                }
+            }
+        });
+
+        // Decommission Reasons
+        const decomReasons = {};
+        filtered.filter(a => a.reason_decommission).forEach(a => {
+            decomReasons[a.reason_decommission] = (decomReasons[a.reason_decommission] || 0) + 1;
+        });
+        const decomCtx = document.getElementById('decomChart').getContext('2d');
+        decomChart = new Chart(decomCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(decomReasons),
+                datasets: [{ data: Object.values(decomReasons), backgroundColor: ['#f59e0b','#ef4444','#8b5cf6','#3b82f6'] }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10 } },
+                    title: { display: true, text: 'Decommission Reasons', color: '#333' }
+                }
+            }
+        });
+    }
+
+    // Helper: calculate lifespan in years from purchase date to decommission date (or today if missing)
+    function calculateLifespan(purchaseDate, decommissionDate) {
+        if (!purchaseDate) return null;
+        const start = new Date(purchaseDate);
+        if (isNaN(start)) return null;
+        let end;
+        if (decommissionDate) {
+            end = new Date(decommissionDate);
+            if (isNaN(end)) end = new Date();
+        } else {
+            end = new Date();
+        }
+        const diffMs = end - start;
+        const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+        return diffYears > 0 ? diffYears : 0;
+    }
+
+    function renderBrandTable(filtered) {
+        const brandData = {};
+        filtered.forEach(a => {
+            if (!a.brand) return;
+            if (!brandData[a.brand]) {
+                brandData[a.brand] = { count: 0, totalPrice: 0, decom: 0, lifespans: [] };
+            }
+            brandData[a.brand].count++;
+            brandData[a.brand].totalPrice += a.price_per_unit || 0;
+            if (a.status && a.status.toUpperCase().includes('DECOMMISSIONED')) {
+                brandData[a.brand].decom++;
+                // Calculate lifespan for decommissioned devices
+                const lifespan = calculateLifespan(a.date_of_purchase, a.reason_decommission ? null : null); // no decommission date field, use current date as approximation
+                // Actually we don't have a decommission date field, so we'll use current date as decommission date.
+                // Better: if reason_decommission is present, assume it's decommissioned now.
+                const lifespanEst = calculateLifespan(a.date_of_purchase, null); // use current date
+                if (lifespanEst !== null) brandData[a.brand].lifespans.push(lifespanEst);
+            }
+        });
+
+        const tbody = document.getElementById('brandTableBody');
+        tbody.innerHTML = '';
+        Object.entries(brandData).forEach(([brand, data]) => {
+            const avgPrice = (data.totalPrice / data.count).toFixed(2);
+            const decomRate = (data.decom / data.count * 100).toFixed(1) + '%';
+            const avgLifespan = data.lifespans.length ? (data.lifespans.reduce((a,b) => a+b,0) / data.lifespans.length).toFixed(1) : 'N/A';
+            let rec = '👍 Good';
+            if (parseFloat(decomRate) > 50) rec = '⚠️ High decom';
+            else if (avgPrice > 2000) rec = '💰 Premium';
+            else rec = '✅ Recommended';
+            const row = `<tr>
+                <td class="px-3 py-1">${brand}</td>
+                <td class="px-3 py-1">${data.count}</td>
+                <td class="px-3 py-1">R ${avgPrice}</td>
+                <td class="px-3 py-1">${decomRate}</td>
+                <td class="px-3 py-1">${avgLifespan}</td>
+                <td class="px-3 py-1">${rec}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function renderLaptopRecommendations(filtered) {
+        // Filter only laptops
+        const laptops = filtered.filter(a => a.device_type && a.device_type.toUpperCase().includes('LAPTOP'));
+        if (laptops.length === 0) {
+            document.getElementById('laptopRecommendations').innerHTML = '<p class="text-gray-500">No laptop data available.</p>';
+            return;
+        }
+
+        // Group by device name (model) or brand+model? We'll use device_name as model.
+        const modelData = {};
+        laptops.forEach(a => {
+            const model = a.device_name || a.brand + ' Unknown';
+            if (!modelData[model]) {
+                modelData[model] = { count: 0, totalPrice: 0, decom: 0, lifespans: [], brand: a.brand };
+            }
+            modelData[model].count++;
+            modelData[model].totalPrice += a.price_per_unit || 0;
+            if (a.status && a.status.toUpperCase().includes('DECOMMISSIONED')) {
+                modelData[model].decom++;
+                const lifespan = calculateLifespan(a.date_of_purchase, null);
+                if (lifespan !== null) modelData[model].lifespans.push(lifespan);
+            }
+        });
+
+        // Compute score: lower decom rate, lower price, higher lifespan
+        const models = Object.entries(modelData).map(([model, data]) => {
+            const avgPrice = data.totalPrice / data.count;
+            const decomRate = data.decom / data.count;
+            const avgLifespan = data.lifespans.length ? data.lifespans.reduce((a,b) => a+b,0) / data.lifespans.length : 0;
+            // Score: higher is better: we want low decomRate, low price, high lifespan
+            // Normalize: decomRate (0-1) lower better; price (we'll use inverse); lifespan higher better
+            // Simple weighted sum: (1 - decomRate) * 10 + (1 / (avgPrice/1000)) * 5 + avgLifespan * 2
+            // Avoid division by zero
+            const priceFactor = avgPrice > 0 ? 1000 / avgPrice : 0; // higher when price low
+            const score = (1 - decomRate) * 10 + priceFactor * 5 + (avgLifespan || 0) * 2;
+            return { model, brand: data.brand, avgPrice, decomRate, avgLifespan, score };
+        });
+
+        // Sort by score descending, take top 3
+        const top3 = models.sort((a,b) => b.score - a.score).slice(0,3);
+
+        let html = '<table class="min-w-full text-sm"><thead><tr><th>Model</th><th>Brand</th><th>Avg Price (R)</th><th>Decom Rate</th><th>Avg Lifespan (yrs)</th><th>Why</th></tr></thead><tbody>';
+        top3.forEach(m => {
+            const decomPercent = (m.decomRate * 100).toFixed(1) + '%';
+            const lifespan = m.avgLifespan ? m.avgLifespan.toFixed(1) : 'N/A';
+            const why = `Low failure rate, ${lifespan !== 'N/A' ? lifespan + ' years avg life' : 'good value'}`;
+            html += `<tr class="border-b">
+                <td class="px-3 py-2">${m.model}</td>
+                <td class="px-3 py-2">${m.brand}</td>
+                <td class="px-3 py-2">R ${m.avgPrice.toFixed(2)}</td>
+                <td class="px-3 py-2">${decomPercent}</td>
+                <td class="px-3 py-2">${lifespan}</td>
+                <td class="px-3 py-2">${why}</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('laptopRecommendations').innerHTML = html;
+    }
+
+    // ==================== ASSETS TABLE ====================
+    function renderTable() {
+        const filtered = getFilteredAssets().filter(a => {
+            if (!searchTerm) return true;
+            return Object.values(a).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase()));
+        });
+        filtered.sort((a,b) => {
+            let valA = a[currentSort.column] || '';
+            let valB = b[currentSort.column] || '';
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+            if (valA < valB) return currentSort.asc ? -1 : 1;
+            if (valA > valB) return currentSort.asc ? 1 : -1;
+            return 0;
+        });
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        filtered.forEach(asset => {
+            const row = document.createElement('tr');
+            row.dataset.id = asset.id;
+            const cols = ['device_type','device_name','brand','assigned_to','serial_number','asset_number','department','condition','status','date_of_purchase','price_per_unit','in_office','insured','headsets_issue_date','reason_decommission','repairable'];
+            cols.forEach(col => {
+                const td = document.createElement('td');
+                td.className = 'px-2 py-1 border-b';
+                let displayValue = asset[col] || '';
+                if (col === 'price_per_unit' && displayValue) {
+                    displayValue = 'R ' + parseFloat(displayValue).toFixed(2);
+                }
+                if (currentRole === 'admin') {
+                    td.innerHTML = `<span class="edit-span" onclick="makeEditable(this, ${asset.id}, '${col}')">${displayValue}</span>`;
+                } else {
+                    td.innerText = displayValue;
+                }
+                row.appendChild(td);
+            });
+            if (currentRole === 'admin') {
+                const actionTd = document.createElement('td');
+                actionTd.className = 'px-2 py-1 border-b';
+                actionTd.innerHTML = `<button onclick="deleteAsset(${asset.id})" class="text-red-600 hover:text-red-800"><i class="fas fa-trash text-xs"></i></button>`;
+                row.appendChild(actionTd);
+            }
+            tbody.appendChild(row);
+        });
+    }
+
+    function filterTable() {
+        searchTerm = document.getElementById('searchInput').value;
+        renderTable();
+    }
+
+    function sortTable(column) {
+        if (currentSort.column === column) {
+            currentSort.asc = !currentSort.asc;
+        } else {
+            currentSort.column = column;
+            currentSort.asc = true;
+        }
+        renderTable();
+    }
+
+    function makeEditable(span, assetId, field) {
+        if (currentRole !== 'admin') return;
+        const currentVal = span.innerText.replace('R ', ''); // remove currency for editing
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentVal;
+        input.className = 'editable-input text-xs';
+        span.parentNode.replaceChild(input, span);
+        input.focus();
+        input.onblur = function() {
+            const newVal = input.value;
+            const asset = assets.find(a => a.id === assetId);
+            if (asset) {
+                asset[field] = newVal;
+                if (field === 'device_name') asset.brand = extractBrand(newVal);
+                localStorage.setItem('assets', JSON.stringify(assets));
+                populateBranchFilter();
+                renderAll();
+            }
+        };
+        input.onkeypress = function(e) {
+            if (e.key === 'Enter') input.blur();
+        };
+    }
+
+    function deleteAsset(id) {
+        if (currentRole !== 'admin') return;
+        assets = assets.filter(a => a.id !== id);
+        localStorage.setItem('assets', JSON.stringify(assets));
+        populateBranchFilter();
+        renderAll();
+    }
+
+    function addAsset() {
+        if (currentRole !== 'admin') return;
+        const newAsset = {
+            id: assets.length ? Math.max(...assets.map(a => a.id)) + 1 : 1,
+            device_type: document.getElementById('new_device_type').value,
+            device_name: document.getElementById('new_device_name').value,
+            brand: extractBrand(document.getElementById('new_device_name').value),
+            assigned_to: document.getElementById('new_assigned_to').value,
+            serial_number: document.getElementById('new_serial').value,
+            branch: document.getElementById('new_branch').value,
+            asset_number: document.getElementById('new_asset_num').value,
+            location: document.getElementById('new_location').value,
+            department: document.getElementById('new_department').value,
+            condition: document.getElementById('new_condition').value,
+            status: document.getElementById('new_status').value,
+            date_of_purchase: document.getElementById('new_purchase_date').value,
+            price_per_unit: parseFloat(document.getElementById('new_price').value) || 0,
+            in_office: document.getElementById('new_in_office').value,
+            insured: document.getElementById('new_insured').value,
+            headsets_issue_date: document.getElementById('new_issue_date').value,
+            reason_decommission: document.getElementById('new_decom_reason').value,
+            repairable: document.getElementById('new_repairable').value
+        };
+        assets.push(newAsset);
+        localStorage.setItem('assets', JSON.stringify(assets));
+        populateBranchFilter();
+        renderAll();
+        document.getElementById('newAssetForm').reset();
+    }
+
+    // ==================== ASSET QUANTITIES ====================
+    function renderQuantities() {
+        const filtered = getFilteredAssets();
+        const search = document.getElementById('quantitySearch').value.toLowerCase();
+        const typeStats = {};
+        filtered.forEach(a => {
+            const type = a.device_type;
+            if (!type) return;
+            if (!typeStats[type]) {
+                typeStats[type] = { total: 0, inUse: 0 };
+            }
+            typeStats[type].total++;
+            if (a.status && a.status.toUpperCase().includes('IN USE')) {
+                typeStats[type].inUse++;
+            }
+        });
+
+        let entries = Object.entries(typeStats);
+        if (search) {
+            entries = entries.filter(([type]) => type.toLowerCase().includes(search));
+        }
+        entries.sort((a, b) => a[0].localeCompare(b[0]));
+
+        const tbody = document.getElementById('quantitiesBody');
+        tbody.innerHTML = '';
+        entries.forEach(([type, stats]) => {
+            const notInUse = stats.total - stats.inUse;
+            const row = `<tr><td class="px-4 py-2">${type}</td><td class="px-4 py-2 font-bold">${stats.total}</td><td class="px-4 py-2">${stats.inUse}</td><td class="px-4 py-2">${notInUse}</td></tr>`;
+            tbody.innerHTML += row;
+        });
+        if (entries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-2 text-center text-gray-500">No matching device types</td></tr>';
+        }
+    }
+
+    // ==================== INIT ====================
+    window.onload = function() {
+        const savedRole = localStorage.getItem('role');
+        if (savedRole) {
+            currentRole = savedRole;
+            document.getElementById('loginContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('roleSpan').innerText = currentRole;
+            if (currentRole === 'admin') {
+                document.getElementById('uploadNav').style.display = 'block';
+                document.getElementById('editHeader').style.display = 'table-cell';
+                document.getElementById('addForm').classList.remove('hidden');
+            }
+            const stored = localStorage.getItem('assets');
+            if (stored) {
+                assets = JSON.parse(stored);
+                populateBranchFilter();
+                renderAll();
+            }
+            showSection('dashboard');
+        }
+    };
+</script>
+</body>
+</html>
