@@ -266,10 +266,16 @@
             <h2 class="text-xl font-semibold mb-4 text-white">Asset Quantities</h2>
             <div class="card-white p-4 rounded-lg shadow">
                 <!-- Filter row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+                        <select id="deviceTypeFilter" class="filter-select w-full" onchange="updateConditionOptions(); renderQuantities()">
+                            <option value="">All Device Types</option>
+                        </select>
+                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-                        <select id="conditionFilter" class="filter-select w-full" onchange="updateStatusFilterOptions(); renderQuantities()">
+                        <select id="conditionFilter" class="filter-select w-full" onchange="updateStatusOptions(); renderQuantities()">
                             <option value="">All Conditions</option>
                         </select>
                     </div>
@@ -384,7 +390,7 @@
             assets = [];
             populateBranchFilter();
             renderAll();
-            updateQuantityFilters(); // populate condition/status/department dropdowns
+            updateQuantityFilters(); // populate device type, condition, status, department dropdowns
             renderQuantities();
         }
     }
@@ -401,7 +407,7 @@
             assets = data.map(a => ({ ...a, id: a.id }));
         }
         populateBranchFilter();
-        updateQuantityFilters(); // refresh condition/status/department dropdowns
+        updateQuantityFilters(); // refresh all dropdowns
         renderAll();
         renderQuantities();
     }
@@ -587,12 +593,34 @@
         return assets.filter(a => a.branch === selectedBranch);
     }
 
-    // ==================== QUANTITIES SECTION FILTERS ====================
+    // ==================== QUANTITIES SECTION FILTERS (with Device Type) ====================
     function updateQuantityFilters() {
         const filtered = getFilteredAssets();
-        // Condition dropdown
+        
+        // Device Type dropdown
+        const deviceTypes = [...new Set(filtered.map(a => a.device_type).filter(d => d && d !== ''))].sort();
+        const deviceSelect = document.getElementById('deviceTypeFilter');
+        deviceSelect.innerHTML = '<option value="">All Device Types</option>';
+        deviceTypes.forEach(dt => {
+            const opt = document.createElement('option');
+            opt.value = dt;
+            opt.textContent = dt;
+            deviceSelect.appendChild(opt);
+        });
+        
+        // Condition dropdown (cascades based on selected device type)
+        updateConditionOptions();
+    }
+    
+    function updateConditionOptions() {
+        let filtered = getFilteredAssets();
+        const selectedDevice = document.getElementById('deviceTypeFilter').value;
+        if (selectedDevice) {
+            filtered = filtered.filter(a => a.device_type === selectedDevice);
+        }
         const conditions = [...new Set(filtered.map(a => a.condition).filter(c => c && c !== ''))].sort();
         const conditionSelect = document.getElementById('conditionFilter');
+        const currentCondition = conditionSelect.value;
         conditionSelect.innerHTML = '<option value="">All Conditions</option>';
         conditions.forEach(c => {
             const opt = document.createElement('option');
@@ -600,32 +628,29 @@
             opt.textContent = c;
             conditionSelect.appendChild(opt);
         });
-        // Status dropdown will be populated after condition selection
-        updateStatusFilterOptions();
-        // Department dropdown
-        const departments = [...new Set(filtered.map(a => a.department).filter(d => d && d !== ''))].sort();
-        const deptSelect = document.getElementById('departmentFilter');
-        deptSelect.innerHTML = '<option value="">All Departments</option>';
-        departments.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
-            deptSelect.appendChild(opt);
-        });
-    }
-
-    function updateStatusFilterOptions() {
-        const filtered = getFilteredAssets();
-        const selectedCondition = document.getElementById('conditionFilter').value;
-        let statuses;
-        if (selectedCondition) {
-            statuses = [...new Set(filtered.filter(a => a.condition === selectedCondition).map(a => a.status).filter(s => s && s !== ''))];
+        // Try to keep previous selection if still valid
+        if (conditions.includes(currentCondition)) {
+            conditionSelect.value = currentCondition;
         } else {
-            statuses = [...new Set(filtered.map(a => a.status).filter(s => s && s !== ''))];
+            conditionSelect.value = '';
         }
-        statuses.sort();
+        // Update status options after condition changes
+        updateStatusOptions();
+    }
+    
+    function updateStatusOptions() {
+        let filtered = getFilteredAssets();
+        const selectedDevice = document.getElementById('deviceTypeFilter').value;
+        const selectedCondition = document.getElementById('conditionFilter').value;
+        if (selectedDevice) {
+            filtered = filtered.filter(a => a.device_type === selectedDevice);
+        }
+        if (selectedCondition) {
+            filtered = filtered.filter(a => a.condition === selectedCondition);
+        }
+        const statuses = [...new Set(filtered.map(a => a.status).filter(s => s && s !== ''))].sort();
         const statusSelect = document.getElementById('statusFilter');
-        const currentValue = statusSelect.value;
+        const currentStatus = statusSelect.value;
         statusSelect.innerHTML = '<option value="">All Statuses</option>';
         statuses.forEach(s => {
             const opt = document.createElement('option');
@@ -633,29 +658,52 @@
             opt.textContent = s;
             statusSelect.appendChild(opt);
         });
-        // Try to keep previous selection if still valid
-        if (statuses.includes(currentValue)) {
-            statusSelect.value = currentValue;
+        if (statuses.includes(currentStatus)) {
+            statusSelect.value = currentStatus;
         } else {
             statusSelect.value = '';
+        }
+        // Department dropdown also depends on current filters
+        updateDepartmentOptions();
+    }
+    
+    function updateDepartmentOptions() {
+        let filtered = getFilteredAssets();
+        const selectedDevice = document.getElementById('deviceTypeFilter').value;
+        const selectedCondition = document.getElementById('conditionFilter').value;
+        const selectedStatus = document.getElementById('statusFilter').value;
+        if (selectedDevice) filtered = filtered.filter(a => a.device_type === selectedDevice);
+        if (selectedCondition) filtered = filtered.filter(a => a.condition === selectedCondition);
+        if (selectedStatus) filtered = filtered.filter(a => a.status === selectedStatus);
+        const departments = [...new Set(filtered.map(a => a.department).filter(d => d && d !== ''))].sort();
+        const deptSelect = document.getElementById('departmentFilter');
+        const currentDept = deptSelect.value;
+        deptSelect.innerHTML = '<option value="">All Departments</option>';
+        departments.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            deptSelect.appendChild(opt);
+        });
+        if (departments.includes(currentDept)) {
+            deptSelect.value = currentDept;
+        } else {
+            deptSelect.value = '';
         }
     }
 
     function renderQuantities() {
         let filtered = getFilteredAssets();
-        const condition = document.getElementById('conditionFilter').value;
-        const status = document.getElementById('statusFilter').value;
-        const department = document.getElementById('departmentFilter').value;
-        if (condition) {
-            filtered = filtered.filter(a => a.condition === condition);
-        }
-        if (status) {
-            filtered = filtered.filter(a => a.status === status);
-        }
-        if (department) {
-            filtered = filtered.filter(a => a.department === department);
-        }
-        // Group by device type
+        const selectedDevice = document.getElementById('deviceTypeFilter').value;
+        const selectedCondition = document.getElementById('conditionFilter').value;
+        const selectedStatus = document.getElementById('statusFilter').value;
+        const selectedDepartment = document.getElementById('departmentFilter').value;
+        if (selectedDevice) filtered = filtered.filter(a => a.device_type === selectedDevice);
+        if (selectedCondition) filtered = filtered.filter(a => a.condition === selectedCondition);
+        if (selectedStatus) filtered = filtered.filter(a => a.status === selectedStatus);
+        if (selectedDepartment) filtered = filtered.filter(a => a.department === selectedDepartment);
+        
+        // Group by device type (if no device type selected, show all types; if one is selected, only that type appears)
         const typeCounts = {};
         filtered.forEach(a => {
             const type = a.device_type;
@@ -909,7 +957,7 @@
 
         const top3 = models.sort((a,b) => b.score - a.score).slice(0,3);
 
-        let html = '<table class="min-w-full text-sm"><thead><tr><th>Model</th><th>Brand</th><th>Avg Price (R)</th><th>Decom Rate</th><th>Avg Lifespan (yrs)</th><th>Why</th></tr></thead><tbody>';
+        let html = '<table class="min-w-full text-sm"><thead><tr><th>Model</th><th>Brand</th><th>Avg Price (R)</th><th>Decom Rate</th><th>Avg Lifespan (yrs)</th><th>Why</th><tr></thead><tbody>';
         top3.forEach(m => {
             const decomPercent = (m.decomRate * 100).toFixed(1) + '%';
             const lifespan = m.avgLifespan ? m.avgLifespan.toFixed(1) : 'N/A';
