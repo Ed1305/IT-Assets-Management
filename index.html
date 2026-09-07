@@ -4,312 +4,489 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Asset Management</title>
-    <!-- Tailwind CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'Segoe UI', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Chart.js -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- SheetJS (XLSX) -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .table-container::-webkit-scrollbar { height: 8px; width: 8px; }
-        .table-container::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+        :root {
+            --sidebar: #0b1220;
+            --sidebar-border: rgba(148, 163, 184, 0.12);
+            --surface: #f4f7fb;
+            --ink: #0f172a;
+            --muted: #64748b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+        }
         .hidden { display: none !important; }
-        .editable-input { width: 100%; padding: 2px 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .chart-container { height: 200px; width: 100%; position: relative; }
-        .gradient-sidebar {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        .sidebar {
+            background: var(--sidebar);
+            border-right: 1px solid var(--sidebar-border);
         }
-        .main-dark {
-            background-color: #0b2a4a;
-        }
-        .card-white {
-            background-color: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .branch-filter {
-            background-color: #f0f4f8;
-            border: 1px solid #cbd5e0;
-        }
-        .month-badge {
-            background-color: #1e3a5f;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 0.7rem;
+            color: #94a3b8;
             font-size: 0.875rem;
             font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
         }
-        .filter-select {
-            background-color: white;
-            border: 1px solid #cbd5e0;
-            border-radius: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
+        .nav-link i {
+            width: 1.1rem;
+            text-align: center;
+        }
+        .nav-link:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: #e2e8f0;
+        }
+        .nav-link.active {
+            background: rgba(99, 102, 241, 0.18);
+            color: #fff;
+            box-shadow: inset 3px 0 0 #6366f1;
+        }
+        .panel {
+            background: #fff;
+            border: 1px solid #e6edf5;
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .kpi-card {
+            background: #fff;
+            border: 1px solid #e6edf5;
+            border-radius: 1rem;
+            padding: 1.15rem 1.25rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .kpi-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .chart-wrap {
+            height: 280px;
+            width: 100%;
+            position: relative;
+        }
+        .table-container::-webkit-scrollbar,
+        .scroll-area::-webkit-scrollbar { height: 8px; width: 8px; }
+        .table-container::-webkit-scrollbar-thumb,
+        .scroll-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table thead th {
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+            background: #f8fafc;
+            padding: 0.7rem 0.85rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .data-table tbody td {
+            padding: 0.7rem 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            font-size: 0.8125rem;
+        }
+        .data-table tbody tr:hover { background: #f8fafc; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.15rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+        .badge-ok { background: #ecfdf5; color: #047857; }
+        .badge-warn { background: #fff7ed; color: #c2410c; }
+        .badge-premium { background: #eef2ff; color: #4338ca; }
+        .field-input, .filter-select {
+            background: #fff;
+            border: 1px solid #dbe3ee;
+            border-radius: 0.65rem;
+            padding: 0.45rem 0.7rem;
+            font-size: 0.8125rem;
+            color: #0f172a;
+            width: 100%;
+        }
+        .field-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            border-radius: 0.65rem;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            transition: background 0.15s ease, opacity 0.15s ease;
+        }
+        .btn-primary { background: #4f46e5; color: #fff; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-success:hover { background: #047857; }
+        .editable-input { width: 100%; padding: 2px 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .rec-card {
+            border: 1px solid #e6edf5;
+            border-radius: 0.9rem;
+            padding: 1rem;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+        .rec-rank {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 9999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-header {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e6edf5;
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 4.5rem; }
+            .sidebar .brand-text, .sidebar .nav-label, .sidebar .role-text { display: none; }
+            .nav-link { justify-content: center; padding: 0.75rem; }
         }
     </style>
 </head>
-<body class="font-sans">
+<body class="font-sans antialiased">
 
-<!-- MAIN APP (visible immediately) -->
-<div id="appContainer" class="flex h-screen">
-    <!-- Sidebar with gradient -->
-    <aside class="w-64 gradient-sidebar text-white flex flex-col shadow-xl">
-        <div class="p-5 border-b border-gray-700">
-            <h1 class="text-lg font-bold">IT Asset Manager</h1>
-            <p class="text-xs text-gray-400 mt-1" id="roleDisplay">Role: <span id="roleSpan">Viewer</span></p>
+<div id="appContainer" class="flex h-screen overflow-hidden">
+    <aside class="sidebar w-64 text-white flex flex-col shrink-0">
+        <div class="px-5 py-5 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0">
+                    <i class="fas fa-cubes text-white text-sm"></i>
+                </div>
+                <div class="brand-text min-w-0">
+                    <h1 class="text-sm font-semibold tracking-tight leading-tight">IT Asset Manager</h1>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Inventory control</p>
+                </div>
+            </div>
         </div>
-        <nav class="flex-1 p-3">
-            <ul>
-                <li class="mb-1">
-                    <a href="#" onclick="showSection('dashboard')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
-                        <i class="fas fa-tachometer-alt w-5"></i> Dashboard
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" onclick="showSection('assets')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
-                        <i class="fas fa-list w-5"></i> Assets
-                    </a>
-                </li>
-                <li class="mb-1">
-                    <a href="#" onclick="showSection('quantities')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
-                        <i class="fas fa-chart-bar w-5"></i> Asset Quantities
-                    </a>
-                </li>
-                <li class="mb-1" id="uploadNav" style="display: none;">
-                    <a href="#" onclick="showSection('upload')" class="flex items-center p-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition">
-                        <i class="fas fa-upload w-5"></i> Upload Excel
-                    </a>
-                </li>
-            </ul>
+        <nav class="flex-1 p-3 space-y-1">
+            <a href="#" data-section="dashboard" onclick="showSection('dashboard'); return false;" class="nav-link active">
+                <i class="fas fa-gauge-high"></i> <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="#" data-section="assets" onclick="showSection('assets'); return false;" class="nav-link">
+                <i class="fas fa-list"></i> <span class="nav-label">Assets</span>
+            </a>
+            <a href="#" data-section="quantities" onclick="showSection('quantities'); return false;" class="nav-link">
+                <i class="fas fa-chart-bar"></i> <span class="nav-label">Quantities</span>
+            </a>
+            <a href="#" data-section="upload" onclick="showSection('upload'); return false;" class="nav-link" id="uploadNav" style="display: none;">
+                <i class="fas fa-upload"></i> <span class="nav-label">Upload Excel</span>
+            </a>
         </nav>
-        <div class="p-3 border-t border-gray-700">
+        <div class="p-3 border-t border-white/10">
+            <p class="role-text text-[11px] text-slate-400 px-2 mb-2" id="roleDisplay">Signed in as <span id="roleSpan" class="text-slate-200 font-medium">Viewer</span></p>
             <div id="loginButtonContainer">
-                <button onclick="promptAdminLogin()" class="w-full flex items-center justify-center p-2 text-sm text-green-400 hover:bg-green-700 hover:text-white rounded-lg transition">
-                    <i class="fas fa-lock mr-2"></i> Admin Login
+                <button onclick="promptAdminLogin()" class="w-full nav-link justify-center text-emerald-300 hover:text-white hover:bg-emerald-600/30">
+                    <i class="fas fa-lock"></i> <span class="nav-label">Admin Login</span>
                 </button>
             </div>
             <div id="logoutButtonContainer" class="hidden">
-                <button onclick="logout()" class="w-full flex items-center justify-center p-2 text-sm text-red-400 hover:bg-red-700 hover:text-white rounded-lg transition">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                <button onclick="logout()" class="w-full nav-link justify-center text-rose-300 hover:text-white hover:bg-rose-600/30">
+                    <i class="fas fa-sign-out-alt"></i> <span class="nav-label">Logout</span>
                 </button>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content with dark blue background -->
-    <main class="flex-1 overflow-auto p-4 main-dark">
-        <!-- Admin Panel (visible only to admin) -->
-        <div id="adminPanel" class="hidden mb-4 p-4 bg-blue-900 rounded-lg shadow-lg">
-            <h3 class="text-lg font-semibold text-white mb-2">Admin Settings</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Set active month -->
-                <div class="bg-white p-3 rounded">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Set Active Month (viewers see this)</label>
-                    <select id="monthSelector" class="border rounded px-2 py-1 text-sm w-full mb-2">
-                        <option value="">-- Select month --</option>
-                    </select>
-                    <button onclick="setActiveMonth()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Set as Active</button>
-                </div>
-                <!-- Upload new month data -->
-                <div class="bg-white p-3 rounded">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload New Month Data</label>
-                    <input type="file" id="adminFileInput" accept=".xlsx, .xls" class="text-sm mb-2 w-full">
-                    <input type="text" id="newMonthInput" placeholder="Month (YYYY-MM)" class="border rounded px-2 py-1 text-sm w-full mb-2">
-                    <button onclick="uploadNewMonth()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Upload</button>
-                    <div id="adminUploadStatus" class="text-xs text-gray-600 mt-1"></div>
-                </div>
+    <div class="flex-1 flex flex-col min-w-0">
+        <header class="app-header px-6 py-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div>
+                <h2 id="pageTitle" class="text-lg font-semibold text-slate-900 tracking-tight">Dashboard</h2>
+                <p id="pageSubtitle" class="text-xs text-slate-500 mt-0.5">Inventory overview and procurement insights</p>
             </div>
-        </div>
-
-        <!-- Branch filter + Active month display (always visible) -->
-        <div class="flex flex-wrap items-center justify-between mb-4 branch-filter p-2 rounded-lg shadow-sm">
-            <div class="flex items-center">
-                <label for="branchFilter" class="text-sm font-medium text-gray-700 mr-3">Branch:</label>
-                <select id="branchFilter" class="border rounded-lg px-3 py-1 text-sm bg-white" onchange="applyBranchFilter()">
+            <div class="flex flex-wrap items-center gap-3">
+                <label class="text-xs font-medium text-slate-500">Branch</label>
+                <select id="branchFilter" class="filter-select w-auto min-w-[10rem]" onchange="applyBranchFilter()">
                     <option value="ALL">All Branches</option>
                 </select>
+                <div class="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-3 py-1.5 text-xs font-medium">
+                    <i class="far fa-calendar text-slate-300"></i>
+                    <span id="monthDisplay">Active Month: Not set</span>
+                </div>
             </div>
-            <div id="monthDisplay" class="month-badge mt-2 sm:mt-0">
-                Active Month: Not set
-            </div>
-        </div>
+        </header>
 
-        <!-- Dashboard Section -->
-        <div id="dashboardSection" class="section">
-            <h2 class="text-xl font-semibold mb-4 text-white">Dashboard</h2>
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="card-white p-4 rounded-lg shadow flex items-center">
-                    <div class="p-2 bg-blue-100 rounded-full mr-3"><i class="fas fa-server text-blue-600 text-sm"></i></div>
-                    <div><p class="text-xs text-gray-500">Total Assets</p><p class="text-xl font-bold" id="totalAssets">0</p></div>
-                </div>
-                <div class="card-white p-4 rounded-lg shadow flex items-center">
-                    <div class="p-2 bg-green-100 rounded-full mr-3"><i class="fas fa-dollar-sign text-green-600 text-sm"></i></div>
-                    <div><p class="text-xs text-gray-500">Total Value</p><p class="text-xl font-bold" id="totalValue">R 0</p></div>
-                </div>
-                <div class="card-white p-4 rounded-lg shadow flex items-center">
-                    <div class="p-2 bg-yellow-100 rounded-full mr-3"><i class="fas fa-check-circle text-yellow-600 text-sm"></i></div>
-                    <div><p class="text-xs text-gray-500">In Use</p><p class="text-xl font-bold" id="inUseCount">0</p></div>
-                </div>
-                <div class="card-white p-4 rounded-lg shadow flex items-center">
-                    <div class="p-2 bg-red-100 rounded-full mr-3"><i class="fas fa-trash text-red-600 text-sm"></i></div>
-                    <div><p class="text-xs text-gray-500">Decommissioned</p><p class="text-xl font-bold" id="decomCount">0</p></div>
+        <main class="flex-1 overflow-auto p-6">
+            <div id="adminPanel" class="hidden mb-5 panel p-5">
+                <h3 class="text-sm font-semibold text-slate-900 mb-4">Admin Settings</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">Set active month (viewers see this)</label>
+                        <select id="monthSelector" class="filter-select mb-3">
+                            <option value="">-- Select month --</option>
+                        </select>
+                        <button onclick="setActiveMonth()" class="btn btn-primary">Set as Active</button>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">Upload new month data</label>
+                        <input type="file" id="adminFileInput" accept=".xlsx, .xls" class="text-xs mb-2 w-full text-slate-600">
+                        <input type="text" id="newMonthInput" placeholder="Month (YYYY-MM)" class="field-input mb-3">
+                        <button onclick="uploadNewMonth()" class="btn btn-success">Upload</button>
+                        <div id="adminUploadStatus" class="text-xs text-slate-500 mt-2"></div>
+                    </div>
                 </div>
             </div>
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                <div class="card-white p-3 rounded-lg shadow">
-                    <div class="chart-container"><canvas id="typeChart"></canvas></div>
+
+            <div id="dashboardSection" class="section space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <div class="kpi-card">
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Total Assets</p>
+                            <p class="text-2xl font-semibold tracking-tight mt-1" id="totalAssets">0</p>
+                            <p class="text-xs text-slate-400 mt-1" id="kpiAssetsMeta">Across all branches</p>
+                        </div>
+                        <div class="kpi-icon bg-indigo-50 text-indigo-600"><i class="fas fa-server"></i></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Total Value</p>
+                            <p class="text-2xl font-semibold tracking-tight mt-1" id="totalValue">R 0</p>
+                            <p class="text-xs text-slate-400 mt-1" id="kpiValueMeta">Purchase value on record</p>
+                        </div>
+                        <div class="kpi-icon bg-emerald-50 text-emerald-600"><i class="fas fa-coins"></i></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">In Use</p>
+                            <p class="text-2xl font-semibold tracking-tight mt-1" id="inUseCount">0</p>
+                            <p class="text-xs text-slate-400 mt-1" id="kpiInUseMeta">0% of inventory</p>
+                        </div>
+                        <div class="kpi-icon bg-sky-50 text-sky-600"><i class="fas fa-circle-check"></i></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Decommissioned</p>
+                            <p class="text-2xl font-semibold tracking-tight mt-1" id="decomCount">0</p>
+                            <p class="text-xs text-slate-400 mt-1" id="kpiDecomMeta">0% of inventory</p>
+                        </div>
+                        <div class="kpi-icon bg-rose-50 text-rose-600"><i class="fas fa-box-archive"></i></div>
+                    </div>
                 </div>
-                <div class="card-white p-3 rounded-lg shadow">
-                    <div class="chart-container"><canvas id="statusChart"></canvas></div>
+
+                <div id="dashboardEmpty" class="hidden panel p-10 text-center">
+                    <div class="mx-auto h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-700">No assets for this period</p>
+                    <p class="text-xs text-slate-500 mt-1">Select another branch or set an active month to populate the dashboard.</p>
                 </div>
-                <div class="card-white p-3 rounded-lg shadow">
-                    <div class="chart-container"><canvas id="brandChart"></canvas></div>
-                </div>
-                <div class="card-white p-3 rounded-lg shadow">
-                    <div class="chart-container"><canvas id="decomChart"></canvas></div>
+
+                <div id="dashboardContent">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+                        <div class="panel p-5">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-semibold text-slate-900">Device types</h3>
+                                <p class="text-xs text-slate-500">Top 10 categories in the current view</p>
+                            </div>
+                            <div class="chart-wrap"><canvas id="typeChart"></canvas></div>
+                        </div>
+                        <div class="panel p-5">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-semibold text-slate-900">Status mix</h3>
+                                <p class="text-xs text-slate-500">How assets are currently classified</p>
+                            </div>
+                            <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+                        </div>
+                        <div class="panel p-5">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-semibold text-slate-900">Brand distribution</h3>
+                                <p class="text-xs text-slate-500">Most common manufacturers</p>
+                            </div>
+                            <div class="chart-wrap"><canvas id="brandChart"></canvas></div>
+                        </div>
+                        <div class="panel p-5">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-semibold text-slate-900">Decommission reasons</h3>
+                                <p class="text-xs text-slate-500">Why assets were retired</p>
+                            </div>
+                            <div class="chart-wrap"><canvas id="decomChart"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div class="panel p-5 mb-5">
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-slate-900">Brand performance</h3>
+                            <p class="text-xs text-slate-500">Price, failure rate, and lifespan by device type</p>
+                        </div>
+                        <div class="overflow-auto scroll-area rounded-lg border border-slate-100">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device Type</th>
+                                        <th>Brand</th>
+                                        <th>Count</th>
+                                        <th>Avg Price (R)</th>
+                                        <th>Decom Rate</th>
+                                        <th>Avg Lifespan (yrs)</th>
+                                        <th>Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="brandTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel p-5">
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-slate-900">Laptop recommendations</h3>
+                            <p class="text-xs text-slate-500">Highest-scoring models based on cost, reliability, and lifespan</p>
+                        </div>
+                        <div id="laptopRecommendations"></div>
+                    </div>
                 </div>
             </div>
-            <!-- Brand Performance Table -->
-            <div class="card-white p-4 rounded-lg shadow mb-6">
-                <h3 class="text-md font-semibold mb-3">Brand Performance & Recommendation</h3>
-                <div class="overflow-auto text-sm">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
+
+            <div id="assetsSection" class="section hidden">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                    <p class="text-sm text-slate-500">Search the register by name, serial, department, or status.</p>
+                    <input type="text" id="searchInput" placeholder="Search assets..." class="field-input max-w-xs" onkeyup="filterTable()">
+                </div>
+                <div class="panel p-0 overflow-auto table-container" style="max-height: 70vh;">
+                    <table class="data-table text-xs" id="assetsTable">
+                        <thead class="sticky top-0 z-10">
                             <tr>
-                                <th class="px-3 py-2 text-left">Device Type</th>
-                                <th class="px-3 py-2 text-left">Brand</th>
-                                <th class="px-3 py-2">Count</th>
-                                <th class="px-3 py-2">Avg Price (R)</th>
-                                <th class="px-3 py-2">Decom Rate</th>
-                                <th class="px-3 py-2">Avg Lifespan (yrs)</th>
-                                <th class="px-3 py-2">Recommendation</th>
+                                <th class="cursor-pointer" onclick="sortTable('device_type')">Device Type</th>
+                                <th class="cursor-pointer" onclick="sortTable('device_name')">Device Name</th>
+                                <th class="cursor-pointer" onclick="sortTable('brand')">Brand</th>
+                                <th>Assigned To</th>
+                                <th>Serial #</th>
+                                <th>Asset #</th>
+                                <th>Department</th>
+                                <th>Condition</th>
+                                <th>Status</th>
+                                <th>Purchase Date</th>
+                                <th>Price</th>
+                                <th>In Office</th>
+                                <th>Insured</th>
+                                <th>Issue Date</th>
+                                <th>Decom Reason</th>
+                                <th>Repairable</th>
+                                <th id="editHeader" style="display:none;">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="brandTableBody"></tbody>
+                        <tbody id="tableBody"></tbody>
                     </table>
                 </div>
-            </div>
-            <!-- Top 3 Laptop Recommendations -->
-            <div class="card-white p-4 rounded-lg shadow">
-                <h3 class="text-md font-semibold mb-3">💻 Top 3 Laptop Recommendations</h3>
-                <div id="laptopRecommendations" class="text-sm">
-                    <!-- Filled by JavaScript -->
+                <div id="addForm" class="mt-4 panel p-5 hidden">
+                    <h3 class="text-sm font-semibold text-slate-900 mb-3">Add new asset</h3>
+                    <form id="newAssetForm" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                        <input type="text" placeholder="Device Type" id="new_device_type" class="field-input">
+                        <input type="text" placeholder="Device Name" id="new_device_name" class="field-input">
+                        <input type="text" placeholder="Assigned To" id="new_assigned_to" class="field-input">
+                        <input type="text" placeholder="Serial Number" id="new_serial" class="field-input">
+                        <input type="text" placeholder="Branch" id="new_branch" class="field-input">
+                        <input type="text" placeholder="Asset Number" id="new_asset_num" class="field-input">
+                        <input type="text" placeholder="Location" id="new_location" class="field-input">
+                        <input type="text" placeholder="Department" id="new_department" class="field-input">
+                        <input type="text" placeholder="Condition" id="new_condition" class="field-input">
+                        <input type="text" placeholder="Status" id="new_status" class="field-input">
+                        <input type="date" placeholder="Purchase Date" id="new_purchase_date" class="field-input">
+                        <input type="number" step="0.01" placeholder="Price" id="new_price" class="field-input">
+                        <input type="text" placeholder="In Office" id="new_in_office" class="field-input">
+                        <input type="text" placeholder="Insured" id="new_insured" class="field-input">
+                        <input type="date" placeholder="Headsets Issue Date" id="new_issue_date" class="field-input">
+                        <input type="text" placeholder="Decom Reason" id="new_decom_reason" class="field-input">
+                        <input type="text" placeholder="Repairable" id="new_repairable" class="field-input">
+                        <button type="button" onclick="addAsset()" class="btn btn-primary col-span-3 py-2">Add Asset</button>
+                    </form>
                 </div>
             </div>
-        </div>
 
-        <!-- Assets Section -->
-        <div id="assetsSection" class="section hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-white">Assets</h2>
-                <input type="text" id="searchInput" placeholder="Search..." class="px-3 py-1 text-sm border rounded-lg" onkeyup="filterTable()">
-            </div>
-            <div class="card-white p-3 rounded-lg shadow overflow-auto table-container" style="max-height: 70vh;">
-                <table class="min-w-full divide-y divide-gray-200 text-xs" id="assetsTable">
-                    <thead class="bg-gray-50 sticky top-0">
-                        <tr>
-                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('device_type')">Device Type</th>
-                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('device_name')">Device Name</th>
-                            <th class="px-2 py-1 cursor-pointer" onclick="sortTable('brand')">Brand</th>
-                            <th class="px-2 py-1">Assigned To</th>
-                            <th class="px-2 py-1">Serial #</th>
-                            <th class="px-2 py-1">Asset #</th>
-                            <th class="px-2 py-1">Department</th>
-                            <th class="px-2 py-1">Condition</th>
-                            <th class="px-2 py-1">Status</th>
-                            <th class="px-2 py-1">Purchase Date</th>
-                            <th class="px-2 py-1">Price</th>
-                            <th class="px-2 py-1">In Office</th>
-                            <th class="px-2 py-1">Insured</th>
-                            <th class="px-2 py-1">Issue Date</th>
-                            <th class="px-2 py-1">Decom Reason</th>
-                            <th class="px-2 py-1">Repairable</th>
-                            <th class="px-2 py-1" id="editHeader" style="display:none;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-gray-200"></tbody>
-                </table>
-            </div>
-            <!-- Add New Asset Form (Admin only) -->
-            <div id="addForm" class="mt-4 card-white p-4 rounded-lg shadow hidden">
-                <h3 class="text-md font-semibold mb-3">Add New Asset</h3>
-                <form id="newAssetForm" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                    <input type="text" placeholder="Device Type" id="new_device_type" class="border p-1 rounded">
-                    <input type="text" placeholder="Device Name" id="new_device_name" class="border p-1 rounded">
-                    <input type="text" placeholder="Assigned To" id="new_assigned_to" class="border p-1 rounded">
-                    <input type="text" placeholder="Serial Number" id="new_serial" class="border p-1 rounded">
-                    <input type="text" placeholder="Branch" id="new_branch" class="border p-1 rounded">
-                    <input type="text" placeholder="Asset Number" id="new_asset_num" class="border p-1 rounded">
-                    <input type="text" placeholder="Location" id="new_location" class="border p-1 rounded">
-                    <input type="text" placeholder="Department" id="new_department" class="border p-1 rounded">
-                    <input type="text" placeholder="Condition" id="new_condition" class="border p-1 rounded">
-                    <input type="text" placeholder="Status" id="new_status" class="border p-1 rounded">
-                    <input type="date" placeholder="Purchase Date" id="new_purchase_date" class="border p-1 rounded">
-                    <input type="number" step="0.01" placeholder="Price" id="new_price" class="border p-1 rounded">
-                    <input type="text" placeholder="In Office" id="new_in_office" class="border p-1 rounded">
-                    <input type="text" placeholder="Insured" id="new_insured" class="border p-1 rounded">
-                    <input type="date" placeholder="Headsets Issue Date" id="new_issue_date" class="border p-1 rounded">
-                    <input type="text" placeholder="Decom Reason" id="new_decom_reason" class="border p-1 rounded">
-                    <input type="text" placeholder="Repairable" id="new_repairable" class="border p-1 rounded">
-                    <button type="button" onclick="addAsset()" class="bg-blue-600 text-white py-1 rounded hover:bg-blue-700 col-span-3 text-sm">Add Asset</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Asset Quantities Section (New interactive filtering) -->
-        <div id="quantitiesSection" class="section hidden">
-            <h2 class="text-xl font-semibold mb-4 text-white">Asset Quantities</h2>
-            <div class="card-white p-4 rounded-lg shadow">
-                <!-- Filter row -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
-                        <select id="deviceTypeFilter" class="filter-select w-full" onchange="updateConditionOptions(); renderQuantities()">
-                            <option value="">All Device Types</option>
-                        </select>
+            <div id="quantitiesSection" class="section hidden">
+                <div class="panel p-5">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Device Type</label>
+                            <select id="deviceTypeFilter" class="filter-select" onchange="updateConditionOptions(); renderQuantities()">
+                                <option value="">All Device Types</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Condition</label>
+                            <select id="conditionFilter" class="filter-select" onchange="updateStatusOptions(); renderQuantities()">
+                                <option value="">All Conditions</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
+                            <select id="statusFilter" class="filter-select" onchange="renderQuantities()">
+                                <option value="">All Statuses</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Department</label>
+                            <select id="departmentFilter" class="filter-select" onchange="renderQuantities()">
+                                <option value="">All Departments</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-                        <select id="conditionFilter" class="filter-select w-full" onchange="updateStatusOptions(); renderQuantities()">
-                            <option value="">All Conditions</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select id="statusFilter" class="filter-select w-full" onchange="renderQuantities()">
-                            <option value="">All Statuses</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                        <select id="departmentFilter" class="filter-select w-full" onchange="renderQuantities()">
-                            <option value="">All Departments</option>
-                        </select>
+                    <div class="overflow-auto rounded-lg border border-slate-100" style="max-height: 60vh;">
+                        <table class="data-table">
+                            <thead class="sticky top-0">
+                                <tr>
+                                    <th>Device Type</th>
+                                    <th>Total Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quantitiesBody"></tbody>
+                        </table>
                     </div>
                 </div>
-                <!-- Table -->
-                <div class="overflow-auto" style="max-height: 60vh;">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 sticky top-0">
-                            <tr>
-                                <th class="px-4 py-2 text-left">Device Type</th>
-                                <th class="px-4 py-2 text-left">Total Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody id="quantitiesBody" class="divide-y divide-gray-200"></tbody>
-                    </table>
-                </div>
             </div>
-        </div>
 
-        <!-- Upload Section (Admin only) – hidden -->
-        <div id="uploadSection" class="section hidden"></div>
-    </main>
+            <div id="uploadSection" class="section hidden"></div>
+        </main>
+    </div>
 </div>
 
 <script>
@@ -319,13 +496,34 @@
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
     // ==================== GLOBAL VARIABLES ====================
-    let assets = [];               // current month's assets
-    let currentRole = null;        // 'admin' or 'user' (viewer)
+    let assets = [];
+    let currentRole = null;
     let currentSort = { column: 'device_type', asc: true };
     let searchTerm = '';
     let selectedBranch = 'ALL';
-    let activeMonth = null;        // current active month
+    let activeMonth = null;
     let typeChart, statusChart, brandChart, decomChart;
+
+    const chartDefaults = {
+        font: { family: 'Inter, system-ui, sans-serif', size: 11 },
+        color: '#64748b'
+    };
+    if (window.Chart) {
+        Chart.defaults.font.family = chartDefaults.font.family;
+        Chart.defaults.font.size = chartDefaults.font.size;
+        Chart.defaults.color = chartDefaults.color;
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.tooltip.backgroundColor = '#0f172a';
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    }
+
+    const PAGE_COPY = {
+        dashboard: ['Dashboard', 'Inventory overview and procurement insights'],
+        assets: ['Asset Register', 'Search and manage individual devices'],
+        quantities: ['Asset Quantities', 'Filter inventory by type, condition, and status'],
+        upload: ['Upload Excel', 'Import a new monthly asset file']
+    };
 
     // ==================== ROLE MANAGEMENT ====================
     function setRole(role) {
@@ -333,13 +531,13 @@
         localStorage.setItem('role', role);
         document.getElementById('roleSpan').innerText = role === 'admin' ? 'Admin' : 'Viewer';
         if (role === 'admin') {
-            document.getElementById('uploadNav').style.display = 'block';
+            document.getElementById('uploadNav').style.display = 'flex';
             document.getElementById('editHeader').style.display = 'table-cell';
             document.getElementById('addForm').classList.remove('hidden');
             document.getElementById('loginButtonContainer').classList.add('hidden');
             document.getElementById('logoutButtonContainer').classList.remove('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
-            loadMonths(); // load months for admin selector
+            loadMonths();
         } else {
             document.getElementById('uploadNav').style.display = 'none';
             document.getElementById('editHeader').style.display = 'none';
@@ -390,7 +588,7 @@
             assets = [];
             populateBranchFilter();
             renderAll();
-            updateQuantityFilters(); // populate device type, condition, status, department dropdowns
+            updateQuantityFilters();
             renderQuantities();
         }
     }
@@ -407,7 +605,7 @@
             assets = data.map(a => ({ ...a, id: a.id }));
         }
         populateBranchFilter();
-        updateQuantityFilters(); // refresh all dropdowns
+        updateQuantityFilters();
         renderAll();
         renderQuantities();
     }
@@ -548,10 +746,28 @@
         return null;
     }
 
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatCurrency(value) {
+        return 'R ' + Number(value || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     // ==================== UI NAVIGATION ====================
     function showSection(section) {
         document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
         document.getElementById(section + 'Section').classList.remove('hidden');
+        document.querySelectorAll('.nav-link[data-section]').forEach(el => {
+            el.classList.toggle('active', el.dataset.section === section);
+        });
+        const copy = PAGE_COPY[section] || PAGE_COPY.dashboard;
+        document.getElementById('pageTitle').textContent = copy[0];
+        document.getElementById('pageSubtitle').textContent = copy[1];
         if (section === 'dashboard') renderDashboard();
         if (section === 'assets') renderTable();
         if (section === 'quantities') {
@@ -593,11 +809,9 @@
         return assets.filter(a => a.branch === selectedBranch);
     }
 
-    // ==================== QUANTITIES SECTION FILTERS (with Device Type) ====================
+    // ==================== QUANTITIES SECTION FILTERS ====================
     function updateQuantityFilters() {
         const filtered = getFilteredAssets();
-        
-        // Device Type dropdown
         const deviceTypes = [...new Set(filtered.map(a => a.device_type).filter(d => d && d !== ''))].sort();
         const deviceSelect = document.getElementById('deviceTypeFilter');
         deviceSelect.innerHTML = '<option value="">All Device Types</option>';
@@ -607,11 +821,9 @@
             opt.textContent = dt;
             deviceSelect.appendChild(opt);
         });
-        
-        // Condition dropdown (cascades based on selected device type)
         updateConditionOptions();
     }
-    
+
     function updateConditionOptions() {
         let filtered = getFilteredAssets();
         const selectedDevice = document.getElementById('deviceTypeFilter').value;
@@ -628,16 +840,14 @@
             opt.textContent = c;
             conditionSelect.appendChild(opt);
         });
-        // Try to keep previous selection if still valid
         if (conditions.includes(currentCondition)) {
             conditionSelect.value = currentCondition;
         } else {
             conditionSelect.value = '';
         }
-        // Update status options after condition changes
         updateStatusOptions();
     }
-    
+
     function updateStatusOptions() {
         let filtered = getFilteredAssets();
         const selectedDevice = document.getElementById('deviceTypeFilter').value;
@@ -663,10 +873,9 @@
         } else {
             statusSelect.value = '';
         }
-        // Department dropdown also depends on current filters
         updateDepartmentOptions();
     }
-    
+
     function updateDepartmentOptions() {
         let filtered = getFilteredAssets();
         const selectedDevice = document.getElementById('deviceTypeFilter').value;
@@ -702,8 +911,7 @@
         if (selectedCondition) filtered = filtered.filter(a => a.condition === selectedCondition);
         if (selectedStatus) filtered = filtered.filter(a => a.status === selectedStatus);
         if (selectedDepartment) filtered = filtered.filter(a => a.department === selectedDepartment);
-        
-        // Group by device type (if no device type selected, show all types; if one is selected, only that type appears)
+
         const typeCounts = {};
         filtered.forEach(a => {
             const type = a.device_type;
@@ -714,11 +922,10 @@
         const tbody = document.getElementById('quantitiesBody');
         tbody.innerHTML = '';
         if (entries.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-2 text-center text-gray-500">No assets match the selected filters.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-slate-500">No assets match the selected filters.</td></tr>';
         } else {
             entries.forEach(([type, count]) => {
-                const row = `<tr class="border-b"><td class="px-4 py-2">${type}</td><td class="px-4 py-2 font-bold">${count}</td></tr>`;
-                tbody.innerHTML += row;
+                tbody.innerHTML += `<tr><td>${escapeHtml(type)}</td><td class="font-semibold">${count}</td></tr>`;
             });
         }
     }
@@ -731,19 +938,29 @@
 
     function renderDashboard() {
         const filtered = getFilteredAssets();
+        const emptyEl = document.getElementById('dashboardEmpty');
+        const contentEl = document.getElementById('dashboardContent');
         if (!filtered.length) {
             document.getElementById('totalAssets').innerText = 0;
-            document.getElementById('totalValue').innerText = 'R 0';
+            document.getElementById('totalValue').innerText = 'R 0.00';
             document.getElementById('inUseCount').innerText = 0;
             document.getElementById('decomCount').innerText = 0;
+            document.getElementById('kpiAssetsMeta').innerText = selectedBranch === 'ALL' ? 'Across all branches' : selectedBranch;
+            document.getElementById('kpiValueMeta').innerText = 'Purchase value on record';
+            document.getElementById('kpiInUseMeta').innerText = '0% of inventory';
+            document.getElementById('kpiDecomMeta').innerText = '0% of inventory';
             if (typeChart) typeChart.destroy();
             if (statusChart) statusChart.destroy();
             if (brandChart) brandChart.destroy();
             if (decomChart) decomChart.destroy();
             document.getElementById('brandTableBody').innerHTML = '';
             document.getElementById('laptopRecommendations').innerHTML = '';
+            emptyEl.classList.remove('hidden');
+            contentEl.classList.add('hidden');
             return;
         }
+        emptyEl.classList.add('hidden');
+        contentEl.classList.remove('hidden');
         updateKPIs(filtered);
         updateCharts(filtered);
         renderBrandTable(filtered);
@@ -751,13 +968,40 @@
     }
 
     function updateKPIs(filtered) {
-        document.getElementById('totalAssets').innerText = filtered.length;
-        const totalValue = filtered.reduce((sum, a) => sum + (a.price_per_unit || 0), 0).toFixed(2);
-        document.getElementById('totalValue').innerText = 'R ' + totalValue;
+        const total = filtered.length;
+        document.getElementById('totalAssets').innerText = total.toLocaleString('en-ZA');
+        const totalValue = filtered.reduce((sum, a) => sum + (a.price_per_unit || 0), 0);
+        document.getElementById('totalValue').innerText = formatCurrency(totalValue);
         const inUse = filtered.filter(a => a.status && a.status.toUpperCase().includes('IN USE')).length;
-        document.getElementById('inUseCount').innerText = inUse;
+        document.getElementById('inUseCount').innerText = inUse.toLocaleString('en-ZA');
         const decom = filtered.filter(a => a.status && a.status.toUpperCase().includes('DECOMMISSIONED')).length;
-        document.getElementById('decomCount').innerText = decom;
+        document.getElementById('decomCount').innerText = decom.toLocaleString('en-ZA');
+        document.getElementById('kpiAssetsMeta').innerText = selectedBranch === 'ALL' ? 'Across all branches' : selectedBranch;
+        document.getElementById('kpiValueMeta').innerText = `Across ${total.toLocaleString('en-ZA')} assets`;
+        document.getElementById('kpiInUseMeta').innerText = `${Math.round((inUse / total) * 100)}% of inventory`;
+        document.getElementById('kpiDecomMeta').innerText = `${Math.round((decom / total) * 100)}% of inventory`;
+    }
+
+    function barOptions(indexAxis) {
+        return {
+            indexAxis: indexAxis || 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                title: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#f1f5f9', drawBorder: false },
+                    ticks: { color: '#64748b', maxRotation: 0 }
+                },
+                y: {
+                    grid: { color: '#f1f5f9', drawBorder: false },
+                    ticks: { color: '#64748b' }
+                }
+            }
+        };
     }
 
     function updateCharts(filtered) {
@@ -769,50 +1013,45 @@
         const typeCounts = {};
         filtered.forEach(a => { typeCounts[a.device_type] = (typeCounts[a.device_type] || 0) + 1; });
         const sortedTypes = Object.entries(typeCounts).sort((a,b) => b[1] - a[1]).slice(0,10);
-        const typeLabels = sortedTypes.map(t => t[0]);
-        const typeData = sortedTypes.map(t => t[1]);
         const typeCtx = document.getElementById('typeChart').getContext('2d');
         typeChart = new Chart(typeCtx, {
             type: 'bar',
             data: {
-                labels: typeLabels,
+                labels: sortedTypes.map(t => t[0]),
                 datasets: [{
                     label: 'Count',
-                    data: typeData,
-                    backgroundColor: '#3b82f6',
-                    borderColor: '#2563eb',
-                    borderWidth: 1
+                    data: sortedTypes.map(t => t[1]),
+                    backgroundColor: '#6366f1',
+                    borderRadius: 6,
+                    barThickness: 16
                 }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Top Device Types', color: '#333' }
-                },
-                scales: { x: { ticks: { stepSize: 1 } } }
+                ...barOptions('y'),
+                scales: {
+                    x: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { stepSize: 1, color: '#64748b' } },
+                    y: { grid: { display: false, drawBorder: false }, ticks: { color: '#64748b' } }
+                }
             }
         });
 
         const statusCounts = {};
         filtered.forEach(a => { statusCounts[a.status] = (statusCounts[a.status] || 0) + 1; });
+        const statusPalette = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
         const statusCtx = document.getElementById('statusChart').getContext('2d');
         statusChart = new Chart(statusCtx, {
             type: 'bar',
             data: {
                 labels: Object.keys(statusCounts),
-                datasets: [{ label: 'Count', data: Object.values(statusCounts), backgroundColor: '#3b82f6' }]
+                datasets: [{
+                    label: 'Count',
+                    data: Object.values(statusCounts),
+                    backgroundColor: Object.keys(statusCounts).map((_, i) => statusPalette[i % statusPalette.length]),
+                    borderRadius: 6,
+                    barThickness: 28
+                }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Assets by Status', color: '#333' }
-                }
-            }
+            options: barOptions('x')
         });
 
         const brandCounts = {};
@@ -823,15 +1062,19 @@
             type: 'bar',
             data: {
                 labels: sortedBrands.map(b => b[0]),
-                datasets: [{ label: 'Count', data: sortedBrands.map(b => b[1]), backgroundColor: '#10b981' }]
+                datasets: [{
+                    label: 'Count',
+                    data: sortedBrands.map(b => b[1]),
+                    backgroundColor: '#0ea5e9',
+                    borderRadius: 6,
+                    barThickness: 16
+                }]
             },
             options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Top 10 Brands', color: '#333' }
+                ...barOptions('y'),
+                scales: {
+                    x: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { color: '#64748b' } },
+                    y: { grid: { display: false, drawBorder: false }, ticks: { color: '#64748b' } }
                 }
             }
         });
@@ -841,18 +1084,25 @@
             decomReasons[a.reason_decommission] = (decomReasons[a.reason_decommission] || 0) + 1;
         });
         const decomCtx = document.getElementById('decomChart').getContext('2d');
+        const decomLabels = Object.keys(decomReasons);
         decomChart = new Chart(decomCtx, {
-            type: 'pie',
+            type: decomLabels.length ? 'doughnut' : 'doughnut',
             data: {
-                labels: Object.keys(decomReasons),
-                datasets: [{ data: Object.values(decomReasons), backgroundColor: ['#f59e0b','#ef4444','#8b5cf6','#3b82f6'] }]
+                labels: decomLabels.length ? decomLabels : ['No data'],
+                datasets: [{
+                    data: decomLabels.length ? Object.values(decomReasons) : [1],
+                    backgroundColor: decomLabels.length ? ['#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#0ea5e9'] : ['#e2e8f0'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '62%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 10 } },
-                    title: { display: true, text: 'Decommission Reasons', color: '#333' }
+                    legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14 } },
+                    title: { display: false }
                 }
             }
         });
@@ -903,23 +1153,22 @@
             const brandsSorted = Object.keys(brands).sort((a,b) => a.localeCompare(b));
             brandsSorted.forEach(brand => {
                 const data = brands[brand];
-                const avgPrice = (data.totalPrice / data.count).toFixed(2);
-                const decomRate = (data.decom / data.count * 100).toFixed(1) + '%';
+                const avgPrice = (data.totalPrice / data.count);
+                const decomPct = (data.decom / data.count * 100);
                 const avgLifespan = data.lifespans.length ? (data.lifespans.reduce((a,b) => a+b,0) / data.lifespans.length).toFixed(1) : 'N/A';
-                let rec = '👍 Good';
-                if (parseFloat(decomRate) > 50) rec = '⚠️ High decom';
-                else if (avgPrice > 2000) rec = '💰 Premium';
-                else rec = '✅ Recommended';
-                const row = `<tr>
-                    <td class="px-3 py-1">${type}</td>
-                    <td class="px-3 py-1">${brand}</td>
-                    <td class="px-3 py-1">${data.count}</td>
-                    <td class="px-3 py-1">R ${avgPrice}</td>
-                    <td class="px-3 py-1">${decomRate}</td>
-                    <td class="px-3 py-1">${avgLifespan}</td>
-                    <td class="px-3 py-1">${rec}</td>
+                let rec = 'Recommended';
+                let recClass = 'badge-ok';
+                if (decomPct > 50) { rec = 'High decom'; recClass = 'badge-warn'; }
+                else if (avgPrice > 2000) { rec = 'Premium'; recClass = 'badge-premium'; }
+                tbody.innerHTML += `<tr>
+                    <td>${escapeHtml(type)}</td>
+                    <td class="font-medium">${escapeHtml(brand)}</td>
+                    <td>${data.count}</td>
+                    <td>${escapeHtml(formatCurrency(avgPrice))}</td>
+                    <td>${decomPct.toFixed(1)}%</td>
+                    <td>${avgLifespan}</td>
+                    <td><span class="badge ${recClass}">${rec}</span></td>
                 </tr>`;
-                tbody.innerHTML += row;
             });
         });
     }
@@ -927,7 +1176,7 @@
     function renderLaptopRecommendations(filtered) {
         const laptops = filtered.filter(a => a.device_type && a.device_type.toUpperCase().includes('LAPTOP'));
         if (laptops.length === 0) {
-            document.getElementById('laptopRecommendations').innerHTML = '<p class="text-gray-500">No laptop data available.</p>';
+            document.getElementById('laptopRecommendations').innerHTML = '<p class="text-sm text-slate-500">No laptop data available for this view.</p>';
             return;
         }
 
@@ -956,22 +1205,26 @@
         });
 
         const top3 = models.sort((a,b) => b.score - a.score).slice(0,3);
-
-        let html = '<table class="min-w-full text-sm"><thead><tr><th>Model</th><th>Brand</th><th>Avg Price (R)</th><th>Decom Rate</th><th>Avg Lifespan (yrs)</th><th>Why</th><tr></thead><tbody>';
-        top3.forEach(m => {
+        let html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
+        top3.forEach((m, i) => {
             const decomPercent = (m.decomRate * 100).toFixed(1) + '%';
-            const lifespan = m.avgLifespan ? m.avgLifespan.toFixed(1) : 'N/A';
-            const why = `Low failure rate, ${lifespan !== 'N/A' ? lifespan + ' years avg life' : 'good value'}`;
-            html += `<tr class="border-b">
-                <td class="px-3 py-2">${m.model}</td>
-                <td class="px-3 py-2">${m.brand}</td>
-                <td class="px-3 py-2">R ${m.avgPrice.toFixed(2)}</td>
-                <td class="px-3 py-2">${decomPercent}</td>
-                <td class="px-3 py-2">${lifespan}</td>
-                <td class="px-3 py-2">${why}</td>
-            </tr>`;
+            const lifespan = m.avgLifespan ? m.avgLifespan.toFixed(1) + ' yrs' : 'N/A';
+            const why = m.avgLifespan ? `Low failure rate with ${m.avgLifespan.toFixed(1)} years average life.` : 'Strong value relative to failure rate.';
+            html += `<div class="rec-card">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="rec-rank">${i + 1}</span>
+                    <span class="text-[11px] font-medium text-slate-400">${escapeHtml(m.brand || '')}</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-900 leading-snug">${escapeHtml(m.model)}</p>
+                <p class="text-xs text-slate-500 mt-2">${escapeHtml(why)}</p>
+                <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100 text-center">
+                    <div><p class="text-[10px] uppercase tracking-wide text-slate-400">Price</p><p class="text-xs font-semibold mt-0.5">${escapeHtml(formatCurrency(m.avgPrice))}</p></div>
+                    <div><p class="text-[10px] uppercase tracking-wide text-slate-400">Decom</p><p class="text-xs font-semibold mt-0.5">${decomPercent}</p></div>
+                    <div><p class="text-[10px] uppercase tracking-wide text-slate-400">Life</p><p class="text-xs font-semibold mt-0.5">${lifespan}</p></div>
+                </div>
+            </div>`;
         });
-        html += '</tbody></table>';
+        html += '</div>';
         document.getElementById('laptopRecommendations').innerHTML = html;
     }
 
@@ -999,13 +1252,12 @@
             const cols = ['device_type','device_name','brand','assigned_to','serial_number','asset_number','department','condition','status','date_of_purchase','price_per_unit','in_office','insured','headsets_issue_date','reason_decommission','repairable'];
             cols.forEach(col => {
                 const td = document.createElement('td');
-                td.className = 'px-2 py-1 border-b';
                 let displayValue = asset[col] || '';
                 if (col === 'price_per_unit' && displayValue) {
-                    displayValue = 'R ' + parseFloat(displayValue).toFixed(2);
+                    displayValue = formatCurrency(displayValue);
                 }
                 if (currentRole === 'admin') {
-                    td.innerHTML = `<span class="edit-span" onclick="makeEditable(this, ${asset.id}, '${col}')">${displayValue}</span>`;
+                    td.innerHTML = `<span class="edit-span" onclick="makeEditable(this, ${asset.id}, '${col}')">${escapeHtml(displayValue)}</span>`;
                 } else {
                     td.innerText = displayValue;
                 }
@@ -1013,8 +1265,7 @@
             });
             if (currentRole === 'admin') {
                 const actionTd = document.createElement('td');
-                actionTd.className = 'px-2 py-1 border-b';
-                actionTd.innerHTML = `<button onclick="deleteAsset(${asset.id})" class="text-red-600 hover:text-red-800"><i class="fas fa-trash text-xs"></i></button>`;
+                actionTd.innerHTML = `<button onclick="deleteAsset(${asset.id})" class="text-rose-500 hover:text-rose-700"><i class="fas fa-trash text-xs"></i></button>`;
                 row.appendChild(actionTd);
             }
             tbody.appendChild(row);
@@ -1038,7 +1289,7 @@
 
     async function makeEditable(span, assetId, field) {
         if (currentRole !== 'admin') return;
-        const currentVal = span.innerText.replace('R ', '');
+        const currentVal = span.innerText.replace(/^R\s/, '');
         const input = document.createElement('input');
         input.type = 'text';
         input.value = currentVal;
