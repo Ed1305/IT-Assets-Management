@@ -42,15 +42,15 @@
             --grid: #E9E9E9;
             --red: #ea3943;
             --sidebar-w: 269px;
-            --fillo-bg: #D2D4D8;
+            --fillo-bg: #0F1215;
             --fillo-surface: #FFFFFF;
-            --fillo-canvas: #F9F9F9;
+            --fillo-canvas: #F3F5F8;
             --fillo-ink: #121826;
             --fillo-navy: #0B0F1C;
             --fillo-muted: #5C6174;
             --fillo-line: #EEEEEE;
             --fillo-purple: #5B34AA;
-            --fillo-blue: #E4F1FF;
+            --fillo-blue: #EAF2FF;
             --fillo-search: #F0F2F5;
         }
         * { box-sizing: border-box; }
@@ -248,8 +248,6 @@
             font-weight: 600;
             color: var(--ink);
         }
-        .content-header.store-mode h1,
-        .content-header.store-mode .header-search { display: none; }
         .content-header-right { display: flex; align-items: center; gap: 12px; }
         .header-profile {
             display: flex;
@@ -1100,6 +1098,682 @@
         .store-page-btn:disabled { opacity: 0.45; cursor: default; }
 
         /* ===== Responsive: fluid stacked layout below 900px ===== */
+        /* ============ Sentra security dashboard redesign ============ */
+        :root {
+            --sn-blue: #4285F4;
+            --sn-blue-soft: #EAF2FF;
+            --sn-ink: #1C1F23;
+            --sn-title: #14181D;
+            --sn-sub: #666B73;
+            --sn-muted: #858A91;
+            --sn-line: #E6E9ED;
+            --sn-ws: #F3F5F8;
+            --sn-orange: #FF7043;
+            --sn-red: #F04438;
+            --sn-yellow: #FACC15;
+            --sn-green: #12B76A;
+        }
+
+        /* Outer stage: dark charcoal around a centered rounded app window */
+        .page-shell { background: #0F1215; }
+        body { background: #0F1215; }
+        .raxon-frame {
+            left: 122px;
+            top: 91.333px;
+            width: 1120.667px;
+            height: 840px;
+            background: var(--sn-ws);
+            border-radius: 22px;
+        }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            width: 183.333px;
+            padding: 20px 14.667px 16.667px;
+            background: #fff;
+            border-right: 0;
+        }
+        .sidebar-brand {
+            height: 26.667px;
+            padding: 0 1.333px;
+            gap: 8.667px;
+            margin-bottom: 20.667px;
+        }
+        .sidebar-brand .brand {
+            font-size: 19.5px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #11141A;
+        }
+        .brand-mark {
+            width: 26.667px;
+            height: 26.667px;
+            border-radius: 8px;
+            background: var(--sn-blue);
+            color: #fff;
+        }
+        .brand-mark svg { width: 15px; height: 15px; display: block; }
+
+        .ws-select {
+            display: flex;
+            align-items: center;
+            gap: 7.333px;
+            height: 42px;
+            padding: 0 8px;
+            border: 1px solid #EEEFF1;
+            border-radius: 8px;
+            background: #F9F9F9;
+            flex-shrink: 0;
+            min-width: 0;
+        }
+        .ws-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: #E9F2F8;
+            color: #2E7CC4;
+            font-size: 9.5px;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+        .ws-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; flex: 1; }
+        .ws-text strong {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--sn-ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ws-text span { font-size: 9.5px; color: #8A9099; white-space: nowrap; }
+        .ws-chev { width: 12px; height: 12px; color: #4B5057; flex-shrink: 0; }
+
+        .sidebar-nav {
+            margin-top: 23.333px;
+            padding: 0;
+            gap: 4px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+        .nav-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #9AA0A9;
+            padding: 0 7.333px;
+            line-height: 9.333px;
+        }
+        .sidebar-link {
+            height: 28.667px;
+            padding: 0 7.333px;
+            gap: 8.667px;
+            border-radius: 8px;
+            border: 0;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #3B4046;
+        }
+        .sidebar-link .nav-ico {
+            width: 16px;
+            height: 16px;
+            color: #4E535A;
+        }
+        .sidebar-link:hover { background: #F4F6F8; color: var(--sn-ink); }
+        .sidebar-link.active {
+            background: var(--sn-blue-soft);
+            color: var(--sn-blue);
+            font-weight: 600;
+            border-color: transparent;
+        }
+        .sidebar-link.active .nav-ico { color: var(--sn-blue); }
+        .nav-count {
+            margin-left: auto;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #9AA1AB;
+        }
+        .sidebar-spacer { min-height: 8px; }
+        .sidebar-foot { gap: 4px; margin: 17px 0 0; }
+        .sidebar-foot .sidebar-link { height: 28.667px; padding: 0 7.333px; line-height: normal; }
+
+        .side-card {
+            background: #FAFAFA;
+            border: 1px solid #F0F1F2;
+            border-radius: 10px;
+            padding: 12px 11.5px 8px;
+            margin-top: 16px;
+            flex-shrink: 0;
+        }
+        .side-card .side-shield { width: 16px; height: 16px; color: var(--sn-blue); display: block; margin-bottom: 7.5px; }
+        .side-card h4 { margin: 0 0 3px; font-size: 10.5px; font-weight: 700; letter-spacing: -0.015em; color: var(--sn-ink); white-space: nowrap; }
+        .side-card p { margin: 0 0 5px; font-size: 8px; line-height: 1.5; color: #8A9099; }
+        .side-status { display: flex; align-items: center; gap: 4.5px; font-size: 8.5px; font-weight: 600; letter-spacing: -0.005em; color: #2E7DA6; white-space: nowrap; }
+        .side-status .dot { width: 5.5px; height: 5.5px; border-radius: 999px; background: var(--sn-blue); flex-shrink: 0; }
+
+        .sidebar-divider { height: 1px; background: #EDEEF0; margin: 14px 0 7.5px; }
+        .sidebar-profile { display: flex; align-items: center; gap: 8px; padding: 0; font-size: 11.5px; }
+        .sidebar-profile .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: #EEF0F3;
+            color: #5C616B;
+            font-size: 9px;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background-image: none;
+        }
+        .sidebar-profile .header-profile-text { flex: 1; min-width: 0; }
+        .sidebar-profile .header-profile-text strong { font-size: 11.5px; font-weight: 700; color: var(--sn-ink); }
+        .sidebar-profile .header-profile-text span { font-size: 9.5px; color: #8A9099; }
+        .profile-chev {
+            width: 22px;
+            height: 22px;
+            border: 0;
+            border-radius: 999px;
+            background: none;
+            color: #6B7076;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .profile-chev svg { width: 13px; height: 13px; display: block; }
+        .profile-chev:hover { background: #F2F3F5; color: var(--sn-ink); }
+
+        /* ---------- Top navigation bar ---------- */
+        .content-header {
+            height: 50.667px;
+            min-height: 0;
+            padding: 0 24px;
+            gap: 12px;
+            background: var(--sn-ws);
+            border-bottom: 1px solid var(--sn-line);
+        }
+        .crumbs { display: flex; align-items: center; gap: 6.667px; min-width: 0; }
+        .crumb-muted { font-size: 11.5px; font-weight: 500; color: #6E7379; }
+        .crumb-sep { width: 11px; height: 11px; color: #A8ADB5; flex-shrink: 0; }
+        .content-header h1 {
+            margin: 0;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--sn-title);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .content-header-right { display: flex; align-items: center; gap: 8.667px; }
+        .search-wrap.header-search {
+            margin-right: 15.333px;
+            height: 24.667px;
+            width: 187.333px;
+            min-width: 0;
+            gap: 7px;
+            padding: 0 10.667px;
+            background: #fff;
+            border: 1px solid #EAEDF0;
+        }
+        .search-wrap input { font-size: 10.5px; color: var(--sn-ink); }
+        .search-wrap input::placeholder { color: #7A7F86; }
+        .search-wrap .ico { color: #5F6368; font-size: 10.5px; }
+        .kbd-badge {
+            margin-left: auto;
+            font-size: 8.5px;
+            font-weight: 600;
+            color: #55595E;
+            background: #EFEFF1;
+            border-radius: 5px;
+            padding: 2.5px 5px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            width: 29.333px;
+            height: 29.333px;
+            border: 1px solid #E4E7EB;
+            background: #fff;
+            color: #23272E;
+        }
+        .icon-btn svg { width: 14px; height: 14px; }
+        .icon-btn:hover { background: #FAFAFB; }
+        .plan-pill {
+            height: 16.667px;
+            padding: 0 5.5px;
+            border-radius: 999px;
+            background: #E9F2FF;
+            color: #3B82F6;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        /* ---------- Page header (dashboard) ---------- */
+        .dash-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 19.5px 23.333px 16.5px 24px;
+            background: var(--sn-ws);
+            flex-wrap: nowrap;
+            min-width: 0;
+        }
+        .dash-toolbar .page-head { min-width: 0; flex: 0 1 auto; }
+        .page-title {
+            margin: 0 0 5px;
+            font-size: 25px;
+            line-height: 1.3;
+            font-weight: 700;
+            letter-spacing: -0.012em;
+            color: var(--sn-title);
+        }
+        .page-sub { margin: 0; font-size: 10.5px; line-height: 1.4; color: var(--sn-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .page-actions { display: flex; align-items: center; gap: 6.5px; margin: 9.667px 0 0 auto; flex-wrap: nowrap; flex-shrink: 0; }
+        .sn-pill-select {
+            height: 32.667px;
+            padding: 0 27px 0 13px;
+            border-radius: 999px;
+            border: 1px solid var(--sn-line);
+            background-color: #fff;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='%2355595E' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 11px center;
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: inherit;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--sn-ink);
+            max-width: 105px;
+            cursor: pointer;
+        }
+        .date-pill {
+            display: flex;
+            align-items: center;
+            height: 32.667px;
+            padding: 0 6px 0 11px;
+            background: #fff;
+            border: 1px solid var(--sn-line);
+            border-radius: 999px;
+        }
+        .date-pill .cal-ico { width: 12.5px; height: 12.5px; color: #3F444B; margin-right: 6.5px; flex-shrink: 0; display: block; }
+        #dashDateSeg { display: flex; align-items: center; gap: 1px; background: none; padding: 0; border-radius: 0; box-shadow: none; }
+        #dashDateSeg button {
+            border: 0;
+            background: none;
+            font-family: inherit;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #6B7076;
+            padding: 4.5px 5.5px;
+            border-radius: 999px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        #dashDateSeg button.active { background: #EFF2F6; color: var(--sn-title); }
+        #dashDateSeg button:hover:not(.active) { color: var(--sn-title); }
+        #btnExport.btn-outline {
+            height: 32.667px;
+            padding: 0 12px;
+            border-radius: 999px;
+            font-size: 10.5px;
+            font-weight: 600;
+            gap: 6.5px;
+            border-color: var(--sn-line);
+            background: #fff;
+            color: var(--sn-ink);
+        }
+        #btnExport.btn-outline svg { width: 11.5px; height: 11.5px; }
+        #btnExport.btn-outline:hover { background: #FAFBFC; }
+        #btnAddNew.btn-accent {
+            height: 32.667px;
+            padding: 0 13.5px;
+            border-radius: 999px;
+            font-size: 10.5px;
+            font-weight: 600;
+            gap: 7px;
+            background: var(--sn-blue);
+        }
+        #btnAddNew.btn-accent:hover { background: #3B7BE8; }
+        #btnAddNew.btn-accent svg { width: 13px; height: 13px; }
+
+        /* ---------- Workspace ---------- */
+        .workspace { padding: 0 23.333px 20px 24px; background: var(--sn-ws); }
+        .workspace.dashboard-view {
+            display: block;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 23.333px 16px 24px;
+            scrollbar-width: none;
+        }
+        .workspace.dashboard-view::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+        /* Legacy dashboard widgets kept intact but rendered offscreen (data flow preserved) */
+        #dashboardContent { position: relative; }
+        .legacy-board {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 1320px;
+            height: 900px;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* ---------- Sentra board ---------- */
+        .sentra-board { display: flex; flex-direction: column; }
+        .s-row { display: grid; }
+        .s-row1 { grid-template-columns: minmax(0, 1fr) 220.667px; gap: 16px; height: 259.333px; }
+        .s-row2 { grid-template-columns: 306px minmax(0, 1fr); gap: 16.667px; height: 245.333px; margin-top: 16.667px; }
+        .s-card { background: #fff; border-radius: 12px; padding: 16px; min-width: 0; }
+        .s-incidents { margin-top: 15.333px; padding-bottom: 8px; }
+        .s-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .s-card-head h3, .airec-title h3, .inc-title-row h3 {
+            margin: 0;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--sn-ink);
+        }
+        .s-live { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 500; color: #7A808A; white-space: nowrap; }
+        .s-live .dot { width: 5px; height: 5px; border-radius: 999px; background: var(--sn-blue); }
+
+        /* Security insights */
+        .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11.333px; margin-top: 24.667px; }
+        .metric { min-width: 0; }
+        .metric-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+        .m-label { display: block; font-size: 10.5px; font-weight: 600; color: var(--sn-ink); line-height: 1.3; }
+        .m-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 14.667px;
+            padding: 0 7px;
+            border-radius: 999px;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-top: 3.5px;
+        }
+        .b-protected { background: #E9F2FD; color: #2F7BD1; }
+        .b-attention { background: #FCF3E2; color: #A96D0B; }
+        .b-action { background: #F1F3F5; color: #565C65; }
+        .m-num {
+            font-size: 38px;
+            font-weight: 650;
+            line-height: 1;
+            letter-spacing: -0.035em;
+            color: var(--sn-title);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .m-num .m-suf { font-size: 11px; font-weight: 500; color: #9AA0A9; letter-spacing: 0; margin-left: 1px; }
+        .m-chart { position: relative; height: 75.333px; margin-top: 2px; border-top: 1px solid #EEF0F3; padding-top: 4px; }
+        .m-chart canvas { position: absolute; left: 0; top: 4px; right: 0; bottom: 0; }
+        .m-desc { margin: 14px 0 0; font-size: 9.5px; line-height: 1.45; color: #7A808A; }
+
+        /* Device health */
+        .s-health { display: flex; flex-direction: column; padding-bottom: 6px; }
+        .h-round {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            border: 1px solid var(--sn-line);
+            background: #fff;
+            display: grid;
+            place-items: center;
+            color: var(--sn-title);
+            flex-shrink: 0;
+        }
+        .h-round svg { width: 10px; height: 10px; display: block; }
+        .donut-wrap { position: relative; width: 146.667px; height: 146.667px; margin: 6px auto 0; }
+        .donut-wrap canvas { position: absolute; inset: 0; }
+        .donut-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            text-align: center;
+        }
+        .donut-center strong { font-size: 33px; font-weight: 650; line-height: 1; letter-spacing: -0.03em; color: var(--sn-title); }
+        .donut-center span { font-size: 9.5px; color: #8A9099; margin-top: 6px; }
+        .donut-badge {
+            position: absolute;
+            left: -13.5px;
+            top: 88px;
+            background: #22252A;
+            color: #fff;
+            border-radius: 7px;
+            padding: 6px 9px 7px;
+            text-align: left;
+            z-index: 2;
+            min-width: 52px;
+        }
+        .donut-badge strong { display: block; font-size: 13px; font-weight: 700; line-height: 1.1; }
+        .donut-badge span { display: block; font-size: 8.5px; color: #A9AEB6; margin-top: 2.5px; white-space: nowrap; }
+        .health-legend { display: flex; flex-direction: column; gap: 5.667px; margin-top: 9px; }
+        .hlg-row { display: flex; align-items: center; gap: 6.667px; font-size: 9.5px; color: #5C616B; line-height: 1.25; }
+        .hlg-row .dot { width: 5.5px; height: 5.5px; border-radius: 999px; flex-shrink: 0; }
+        .hlg-row .hlg-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hlg-row .hlg-count { font-weight: 700; color: var(--sn-ink); min-width: 20px; text-align: right; }
+        .hlg-row .hlg-pct { font-weight: 700; color: var(--sn-ink); min-width: 26px; text-align: right; }
+
+        /* Device risk */
+        .s-risk { display: flex; flex-direction: column; }
+        .risk-sub { margin: 5.5px 0 0; font-size: 10px; color: #7A808A; }
+        .risk-bars {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 8px;
+            margin-top: 16px;
+            flex: 1;
+            min-height: 0;
+        }
+        .risk-col { display: flex; flex-direction: column; align-items: center; width: 40px; }
+        .risk-badge {
+            height: 14.667px;
+            padding: 0 7.5px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 3.5px;
+            white-space: nowrap;
+        }
+        .risk-badge.b-dark { background: var(--sn-title); color: #fff; }
+        .risk-badge.b-blue { background: var(--sn-blue); color: #fff; }
+        .risk-badge.b-plain { background: #fff; border: 1px solid var(--sn-line); color: var(--sn-title); }
+        .risk-bar { width: 40px; border-radius: 8px 8px 4px 4px; }
+        .risk-bar.striped {
+            background: repeating-linear-gradient(135deg, #FFFFFF 0 5px, #DCDDE0 5px 6px);
+            border-top: 1.5px solid #171A20;
+        }
+        .risk-bar.solid { background: var(--sn-blue); }
+        .risk-dev { margin-top: 10.5px; font-size: 8.5px; font-weight: 500; letter-spacing: -0.005em; color: #4A4F56; white-space: nowrap; }
+
+        /* AI recommendations */
+        .s-airec { display: flex; flex-direction: column; }
+        .airec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .airec-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .airec-badge {
+            height: 15.333px;
+            padding: 0 7.5px;
+            border-radius: 999px;
+            background: #E9F2FD;
+            color: #3B82F6;
+            font-size: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .airec-score {
+            height: 17.333px;
+            padding: 0 7px;
+            border: 1px solid var(--sn-line);
+            border-radius: 999px;
+            background: #fff;
+            font-size: 7px;
+            letter-spacing: -0.01em;
+            color: #5C616B;
+            display: inline-flex;
+            align-items: center;
+            gap: 3.5px;
+            white-space: nowrap;
+        }
+        .airec-score b { color: var(--sn-title); font-weight: 700; }
+        .airec-table { margin-top: 10.667px; }
+        #airecBody { margin-top: 12.667px; }
+        .airec-row {
+            display: grid;
+            grid-template-columns: 122px minmax(0, 1fr) 78px 44px;
+            column-gap: 0;
+            align-items: center;
+        }
+        .airec-row.head {
+            background: #F5F6F7;
+            border-radius: 8px;
+            height: 19.333px;
+            font-size: 9.5px;
+            font-weight: 500;
+            color: #8A9099;
+        }
+        .airec-row.head > span { padding: 0 10.667px; }
+        .airec-row.head > span:first-child { padding-left: 10.667px; }
+        .airec-body { height: 32.667px; font-size: 10.5px; border-top: 1px solid #EEF0F2; }
+        .airec-body:first-of-type { border-top: 0; }
+        .airec-body .a-name { font-weight: 700; color: var(--sn-ink); padding-right: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .airec-body .a-desc { color: #5F646B; font-size: 8px; letter-spacing: -0.01em; padding-right: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .airec-body .a-review { display: flex; justify-content: flex-end; }
+        .airec-body .a-impact { text-align: right; }
+        .airec-btn {
+            height: 18.667px;
+            padding: 0 13px;
+            border-radius: 999px;
+            border: 1px solid var(--sn-line);
+            background: #fff;
+            color: var(--sn-title);
+            font-family: inherit;
+            font-size: 9.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .airec-btn.primary { background: var(--sn-blue); border-color: var(--sn-blue); color: #fff; }
+        .airec-btn.primary:hover { background: #3B7BE8; }
+        .airec-btn:not(.primary):hover { background: #FAFBFC; }
+        .airec-btn.done { background: #EFF4FD; border-color: #D6E4FB; color: #3B82F6; cursor: default; }
+        .impact { font-size: 9.5px; font-weight: 700; display: inline-block; }
+        .impact.pos { color: var(--sn-green); }
+        .impact.neg { background: #F8EBED; color: var(--sn-red); border-radius: 999px; padding: 2.5px 7.5px; }
+
+        /* Recent incidents */
+        .inc-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .inc-badge {
+            height: 15.333px;
+            padding: 0 7.5px;
+            border-radius: 999px;
+            background: #E9F2FD;
+            color: #3B82F6;
+            font-size: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+        }
+        .inc-view {
+            height: 19.333px;
+            padding: 0 9px;
+            border-radius: 999px;
+            border: 1px solid var(--sn-line);
+            background: #fff;
+            font-family: inherit;
+            font-size: 8.5px;
+            font-weight: 600;
+            color: var(--sn-ink);
+            display: inline-flex;
+            align-items: center;
+            gap: 5.5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .inc-view svg { width: 9.5px; height: 9.5px; display: block; }
+        .inc-view:hover { background: #FAFBFC; }
+        .inc-scroll { margin: 14.667px -5.333px 0; overflow-x: auto; scrollbar-width: thin; }
+        .inc-table { width: 100%; min-width: 870px; border-collapse: collapse; table-layout: fixed; }
+        .inc-table th {
+            background: #F5F6F7;
+            height: 17.333px;
+            font-size: 9.5px;
+            font-weight: 500;
+            color: #8A9099;
+            text-align: left;
+            padding: 0 6px;
+            white-space: nowrap;
+        }
+        .inc-table th:first-child { border-radius: 8px 0 0 8px; padding-left: 10.667px; }
+        .inc-table th:last-child { border-radius: 0 8px 8px 0; }
+        .inc-table td {
+            height: 36.667px;
+            padding: 15px 6px 0;
+            font-size: 10.5px;
+            color: #3F444B;
+            border-bottom: 1px solid #EEF0F2;
+            vertical-align: middle;
+        }
+        .inc-table tr:last-child td { border-bottom: 0; }
+        .inc-table td:first-child { padding-left: 10.667px; }
+        .inc-t { display: block; font-size: 10.5px; font-weight: 700; color: var(--sn-ink); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .inc-r { display: block; font-size: 9px; color: #959BA4; line-height: 1.05; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .td-detected { color: #7A808A; }
+        .sev {
+            height: 14.667px;
+            padding: 0 7.5px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .sev.high { background: #FDE7E4; color: #E0453B; }
+        .sev.medium { background: #FEF3DC; color: #B7791F; }
+        .sev.low { background: #E7F6ED; color: #159447; }
+        .st {
+            height: 16px;
+            padding: 0 8px;
+            gap: 5.5px;
+            border: 1px solid var(--sn-line);
+            border-radius: 999px;
+            background: #fff;
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #3F444B;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .st .dot { width: 5px; height: 5px; border-radius: 999px; background: var(--sn-orange); flex-shrink: 0; }
+        .st.watch .dot { background: var(--sn-yellow); }
+        .st.ok .dot { background: var(--sn-green); }
+        .inc-act { color: var(--sn-ink); display: inline-flex; align-items: center; }
+        .inc-act svg { width: 11px; height: 11px; display: block; }
+
         @media (max-width: 899px) {
             .page-shell {
                 height: auto;
@@ -1124,33 +1798,51 @@
                 width: 100%;
                 height: auto;
                 min-height: calc(100vh - 24px);
-                border-radius: 12px;
+                border-radius: 16px;
             }
             .app-shell { flex-direction: column; }
             .sidebar {
                 width: 100%;
                 max-height: none;
-                padding: 20px 16px;
+                padding: 16px 14.667px;
                 border-right: 0;
                 border-bottom: 1px solid var(--fillo-line);
             }
             .sidebar-brand { padding: 0; }
-            .sidebar-nav { margin-top: 20px; padding: 0; overflow: visible; }
+            .sidebar-nav { margin-top: 16px; padding: 0; overflow: visible; }
+            .side-card { max-width: 420px; }
+            .sidebar-divider { margin: 14px 0 10px; }
             .sidebar-foot {
                 flex-direction: row;
                 flex-wrap: wrap;
-                margin-top: 12px;
+                margin-top: 14px;
+                gap: 6px;
             }
             .sidebar-foot .sidebar-link { width: auto; }
             .content-header {
                 height: auto;
-                min-height: 76px;
-                padding: 14px 16px;
+                min-height: 56px;
+                padding: 10px 16px;
                 flex-wrap: wrap;
             }
-            .header-profile { width: auto; margin-left: 0; }
             .header-search { display: none !important; }
+            .dash-toolbar { padding: 16px; flex-wrap: wrap; }
+            .page-sub { white-space: normal; }
+            .page-actions { flex-wrap: wrap; margin-left: 0; }
+            .page-title { font-size: 22px; }
+            .page-actions { margin-top: 12px; }
             .workspace { padding: 0 16px 24px; overflow: visible; }
+            .workspace.dashboard-view {
+                overflow: visible;
+                padding: 0 16px 24px;
+            }
+            /* Sentra cards stack vertically */
+            .s-row1, .s-row2 { grid-template-columns: 1fr; height: auto; }
+            .s-card { height: auto; }
+            .s-health { padding-bottom: 16px; }
+            .metrics { gap: 14px; }
+            .m-chart { height: 64px; }
+            .legacy-board { display: none; }
             .store-title { margin: 24px 0 20px; font-size: 22px; line-height: 1.3; }
             .store-tabs {
                 gap: 20px;
@@ -1174,6 +1866,17 @@
             .mid-row, .bottom-row { grid-template-columns: 1fr; }
             .side-col { display: none; }
         }
+        @media (max-width: 640px) {
+            .metrics { grid-template-columns: 1fr; }
+            .s-row1, .s-row2 { gap: 14px; }
+            .airec-row { grid-template-columns: 1fr; height: auto; row-gap: 6px; padding: 10px 0; }
+            .airec-row.head { display: none; }
+            .airec-body { height: auto; border-top: 1px solid #EEF0F2; }
+            .airec-body .a-review { justify-content: flex-start; }
+            .airec-body .a-impact { text-align: left; }
+            .page-actions { width: 100%; }
+            .page-actions .sn-pill-select { flex: 1; max-width: none; }
+        }
     </style>
 </head>
 <body class="font-sans antialiased">
@@ -1186,49 +1889,75 @@
                 <aside class="sidebar">
                     <div class="sidebar-brand">
                         <span class="brand-mark" aria-hidden="true">
-                            <svg width="15" height="26.667" viewBox="0 0 22.5 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M0 0 H12 V19.6 L0 9.8 Z M11.4 0 L22.5 9.5 L22.5 10.9 L11.4 9.1 Z" fill="#0B0F1C"/>
-                                <path d="M0 20 H12 V39.6 L0 29.8 Z M11.4 20 L22.5 29.5 L22.5 30.9 L11.4 29.1 Z" fill="#0B0F1C"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.2 19 6v5.5c0 4.3-2.9 7.4-7 9.1-4.1-1.7-7-4.8-7-9.1V6l7-2.8Z"/><path d="m8.9 11.9 2.1 2.1 4.1-4.1"/></svg>
                         </span>
-                        <div class="brand">fillo</div>
+                        <div class="brand">sentra</div>
+                    </div>
+                    <div class="ws-select" aria-label="Workspace switcher">
+                        <span class="ws-avatar">AV</span>
+                        <span class="ws-text"><strong>Avenue Studio</strong><span>Business workspace</span></span>
+                        <svg class="ws-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 9.5 4-4 4 4"/><path d="m8 14.5 4 4 4-4"/></svg>
                     </div>
                     <nav class="sidebar-nav">
+                        <div class="nav-label">WORKSPACE</div>
                         <a href="#" data-section="dashboard" onclick="showSection('dashboard'); return false;" class="sidebar-link nav-link active">
-                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.6 12 3.2l9 7.4"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1h11.6a1 1 0 0 0 1-1V9.4"/><path d="M9.6 21v-6.2h4.8V21"/></svg>
-                            Home
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.6" y="3.6" width="7" height="7" rx="1.6"/><rect x="13.4" y="3.6" width="7" height="9.6" rx="1.6"/><rect x="3.6" y="13.4" width="7" height="7" rx="1.6"/><rect x="13.4" y="15.2" width="7" height="5.4" rx="1.6"/></svg>
+                            Overview
+                        </a>
+                        <a href="#" data-section="assets" onclick="showSection('assets'); return false;" class="sidebar-link nav-link">
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="12" rx="2.2"/><path d="M8.5 20.5h7"/></svg>
+                            Devices
+                            <span class="nav-count" id="navDevicesCount"></span>
+                        </a>
+                        <a href="#" data-section="incidents" onclick="showSection('dashboard'); return false;" class="sidebar-link nav-link">
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.8 18.8 6.4v5.1c0 4-2.7 7-6.8 8.6-4.1-1.6-6.8-4.6-6.8-8.6V6.4L12 3.8Z"/></svg>
+                            Incidents
+                            <span class="nav-count">(6)</span>
+                        </a>
+                        <a href="#" data-section="upload" onclick="if (currentRole === 'admin') { showSection('upload'); } else { promptAdminLogin(); } return false;" class="sidebar-link nav-link" id="uploadNav">
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.6" cy="15.6" r="3.6"/><path d="M10.3 13 19.5 3.8"/><path d="m16.6 6.7 2.4 2.4"/><path d="m14 9.3 2 2"/></svg>
+                            Passwords &amp; leaks
                         </a>
                         <a href="#" data-section="quantities" onclick="showSection('quantities'); return false;" class="sidebar-link nav-link">
                             <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9.2" cy="7.8" r="3.3"/><path d="M3.4 20.2c0-3.5 2.6-5.7 5.8-5.7s5.8 2.2 5.8 5.7"/><path d="M16.2 5.2a3 3 0 0 1 0 5.4"/><path d="M17.4 14.7c2.2.5 3.6 2.1 3.6 4.4"/></svg>
-                            Employees
+                            Access review
                         </a>
-                        <a href="#" data-section="assets" onclick="showSection('assets'); return false;" class="sidebar-link nav-link">
-                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.6" y="4.8" width="14.8" height="10" rx="1.4"/><path d="M2.6 18h18.8l-1.2 2.4H3.8L2.6 18Z"/></svg>
-                            Devices
-                        </a>
-                        <a href="#" data-section="upload" onclick="if (currentRole === 'admin') { showSection('upload'); } else { promptAdminLogin(); } return false;" class="sidebar-link nav-link" id="uploadNav">
-                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.8 6.4a4.6 4.6 0 0 0-6 6L3.2 18l3 3 5.6-5.6a4.6 4.6 0 0 0 6-6l-2.8 2.8-3-3 2.8-2.8Z"/></svg>
-                            Application
-                        </a>
-                        <a href="#" data-section="assets" onclick="showSection('assets'); return false;" class="sidebar-link nav-link">
-                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.6" y="8.6" width="11.8" height="11.8" rx="2.2"/><path d="M5.4 15.4H4.6A2.2 2.2 0 0 1 2.4 13.2V4.6A2.2 2.2 0 0 1 4.6 2.4h8.6a2.2 2.2 0 0 1 2.2 2.2v.8"/><path d="m12.6 14.6 2.2 2.2 3.6-3.6"/></svg>
-                            Orders
+                        <a href="#" data-section="compliance" onclick="if (currentRole === 'admin') { showSection('upload'); } else { promptAdminLogin(); } return false;" class="sidebar-link nav-link">
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.4" y="4.4" width="15.2" height="15.2" rx="4"/><path d="m8.6 12.1 2.4 2.4 4.8-4.9"/></svg>
+                            Compliance
                         </a>
                         <a href="#" data-section="store" onclick="showSection('store'); return false;" class="sidebar-link nav-link">
-                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.8 2.6h12.4l1 16.2a1.6 1.6 0 0 1-1.6 1.7H6.4a1.6 1.6 0 0 1-1.6-1.7L5.8 2.6Z"/><path d="M3 6.6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                            Store
+                            <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="7.4" height="5.4" rx="1.5"/><rect x="13.1" y="4" width="7.4" height="5.4" rx="1.5"/><rect x="3.5" y="11.8" width="7.4" height="8.2" rx="1.5"/><rect x="13.1" y="11.8" width="7.4" height="8.2" rx="1.5"/></svg>
+                            Integrations
                         </a>
                         <div id="loginButtonContainer" class="hidden"></div>
                         <div id="logoutButtonContainer" class="hidden"></div>
                         <div class="sidebar-spacer"></div>
+                        <div class="side-card">
+                            <svg class="side-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2 19 6v5.5c0 4.3-2.9 7.4-7 9.1-4.1-1.7-7-4.8-7-9.1V6l7-2.8Z"/><path d="m8.9 11.9 2.1 2.1 4.1-4.1"/></svg>
+                            <h4>Always on. Always aware.</h4>
+                            <p>Sentra is monitoring your workspace around the clock.</p>
+                            <div class="side-status"><span class="dot"></span>All integrations connected</div>
+                        </div>
                         <div class="sidebar-foot">
-                            <button type="button" class="sidebar-link" onclick="promptAdminLogin()">
-                                <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 3.4h2.5l2.6 12.7a1.8 1.8 0 0 0 1.8 1.4h7.6a1.8 1.8 0 0 0 1.8-1.4L20.6 7H6.3"/><circle cx="9.4" cy="20.4" r="1.3"/><circle cx="17.4" cy="20.4" r="1.3"/></svg>
-                                Support
-                            </button>
                             <button type="button" class="sidebar-link" onclick="if (currentRole === 'admin') document.getElementById('adminPanel').classList.toggle('hidden'); else promptAdminLogin();">
                                 <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2.8h-.44a1.9 1.9 0 0 0-1.9 1.9v.2a1.9 1.9 0 0 1-.95 1.64l-.43.25a1.9 1.9 0 0 1-1.9 0l-.15-.08a1.9 1.9 0 0 0-2.6.7l-.22.38a1.9 1.9 0 0 0 .7 2.6l.15.1a1.9 1.9 0 0 1 .95 1.63v.5a1.9 1.9 0 0 1-.95 1.64l-.15.09a1.9 1.9 0 0 0-.7 2.6l.22.38a1.9 1.9 0 0 0 2.6.7l.15-.08a1.9 1.9 0 0 1 1.9 0l.43.25a1.9 1.9 0 0 1 .95 1.64v.2a1.9 1.9 0 0 0 1.9 1.9h.44a1.9 1.9 0 0 0 1.9-1.9v-.2a1.9 1.9 0 0 1 .95-1.64l.43-.25a1.9 1.9 0 0 1 1.9 0l.15.08a1.9 1.9 0 0 0 2.6-.7l.22-.38a1.9 1.9 0 0 0-.7-2.6l-.15-.09a1.9 1.9 0 0 1-.95-1.64v-.5a1.9 1.9 0 0 1 .95-1.63l.15-.1a1.9 1.9 0 0 0 .7-2.6l-.22-.38a1.9 1.9 0 0 0-2.6-.7l-.15.08a1.9 1.9 0 0 1-1.9 0l-.43-.25a1.9 1.9 0 0 1-.95-1.64v-.2a1.9 1.9 0 0 0-1.9-1.9Z"/><circle cx="12" cy="12" r="3"/></svg>
                                 Settings
+                            </button>
+                            <button type="button" class="sidebar-link" onclick="promptAdminLogin()">
+                                <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.85.35-1.25.95-1.25 1.75v.35"/><circle cx="11.75" cy="16.9" r=".75" fill="currentColor" stroke="none"/></svg>
+                                Help &amp; support
+                            </button>
+                        </div>
+                        <div class="sidebar-divider"></div>
+                        <div class="sidebar-profile">
+                            <span class="avatar">OS</span>
+                            <span class="header-profile-text" id="roleDisplay">
+                                <strong>Oripio Sajbur</strong>
+                                <span id="roleSpan">Viewer</span>
+                            </span>
+                            <button type="button" class="profile-chev" title="Log out" onclick="document.getElementById('logoutButtonContainer').classList.contains('hidden') ? promptAdminLogin() : logout()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9.5 6 6 6-6"/></svg>
                             </button>
                         </div>
                         <div class="upgrade-card hidden">
@@ -1242,52 +1971,50 @@
 
                 <div class="main-pane">
                     <header class="content-header" id="contentHeader">
-                        <h1 id="pageTitle">Dashboard</h1>
+                        <nav class="crumbs">
+                            <span class="crumb-muted">Workspace</span>
+                            <svg class="crumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+                            <h1 id="pageTitle">Dashboard</h1>
+                        </nav>
                         <div class="content-header-right">
                             <label class="search-wrap header-search">
                                 <i class="fas fa-magnifying-glass ico"></i>
-                                <input type="text" id="searchInput" placeholder="Search" onkeyup="filterTable()">
+                                <input type="text" id="searchInput" placeholder="Search workspace" onkeyup="filterTable()">
+                                <span class="kbd-badge">&#8984; K</span>
                             </label>
-                            <button type="button" class="icon-btn" title="Log out" onclick="document.getElementById('logoutButtonContainer').classList.contains('hidden') ? promptAdminLogin() : logout()">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 21H5.4A2.4 2.4 0 0 1 3 18.6V5.4A2.4 2.4 0 0 1 5.4 3h4.1"/><path d="m16.2 16.4 4.4-4.4-4.4-4.4"/><path d="M20.6 12H9.2"/></svg>
-                            </button>
                             <button type="button" class="icon-btn" title="Alerts">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 9.4a5.4 5.4 0 0 1 10.8 0c0 6.4 2.4 8.4 2.4 8.4H4.2s2.4-2 2.4-8.4Z"/><path d="M10.1 20.6a2.2 2.2 0 0 0 3.8 0"/><path d="M4.5 6.6A7.2 7.2 0 0 1 7.1 4.3"/><path d="M19.5 6.6a7.2 7.2 0 0 0-2.6-2.3"/></svg>
                             </button>
-                            <div class="header-profile">
-                                <span class="avatar-wrap">
-                                    <span class="header-avatar">
-                                        <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                            <rect width="40" height="40" fill="#E7EBF1"/>
-                                            <circle cx="20" cy="15.6" r="6.6" fill="#3D4657"/>
-                                            <path d="M20 24c-6.6 0-11.9 4.1-12.8 9.9-.2 1.3.8 2.4 2.1 2.4h21.4c1.3 0 2.3-1.1 2.1-2.4C31.9 28.1 26.6 24 20 24Z" fill="#2E3646"/>
-                                        </svg>
-                                    </span>
-                                    <span class="status-dot" title="Online"></span>
-                                </span>
-                                <div class="header-profile-text" id="roleDisplay">
-                                    <strong>Oripio Sajbur</strong>
-                                    <span id="roleSpan">Viewer</span>
-                                </div>
-                            </div>
+                            <span class="plan-pill">Business plan</span>
                         </div>
                     </header>
                     <p id="pageSubtitle" class="sr-only">Inventory overview and procurement insights</p>
 
                     <div class="dash-toolbar" id="dashToolbar">
-                        <div class="flex items-center gap-2 flex-wrap">
-                        <div class="seg" id="dashDateSeg">
-                            <button type="button" onclick="setSeg(this)">Week</button>
-                            <button type="button" class="active" onclick="setSeg(this)">Month</button>
-                            <button type="button" onclick="setSeg(this)">Years</button>
+                        <div class="page-head">
+                            <h2 class="page-title">Security overview</h2>
+                            <p class="page-sub">Your business, protected. Here's what needs your attention today.</p>
                         </div>
-                        <select id="branchFilter" class="chain-pill" onchange="applyBranchFilter()" title="Branch filter" style="height:26px;max-width:120px;background:#fff;color:#111;border:1px solid var(--line);">
-                            <option value="ALL">All Branches</option>
-                        </select>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button type="button" class="btn-outline" id="btnExport" onclick="exportAssetRegister()"><i class="fas fa-download"></i> Export</button>
-                            <button type="button" class="btn-accent" id="btnAddNew" onclick="openAddAsset()"><i class="fas fa-plus"></i> Add new</button>
+                        <div class="page-actions">
+                            <select id="branchFilter" class="sn-pill-select" onchange="applyBranchFilter()" title="Branch filter">
+                                <option value="ALL">All Branches</option>
+                            </select>
+                            <div class="date-pill">
+                                <svg class="cal-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3.5v4"/><path d="M16 3.5v4"/></svg>
+                                <div class="seg" id="dashDateSeg">
+                                    <button type="button" onclick="setSeg(this)">Week</button>
+                                    <button type="button" class="active" onclick="setSeg(this)">Month</button>
+                                    <button type="button" onclick="setSeg(this)">Years</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-outline" id="btnExport" onclick="exportAssetRegister()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v10"/><path d="m8 10.5 4 4 4-4"/><path d="M4.5 18.5h15"/></svg>
+                                Export report
+                            </button>
+                            <button type="button" class="btn-accent" id="btnAddNew" onclick="openAddAsset()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8"/><path d="M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8"/><path d="M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16"/><path d="M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4.5 12h15"/></svg>
+                                Run security scan
+                            </button>
                         </div>
                     </div>
 
@@ -1313,12 +2040,13 @@
                 </div>
 
                 <div id="dashboardSection" class="section">
-                    <div id="dashboardEmpty" class="hidden card empty-panel">
+<div id="dashboardEmpty" class="hidden card empty-panel">
                         <p class="text-sm font-medium">No assets for this period</p>
                         <p class="text-xs text-slate-500 mt-1">Select another branch or set an active month to populate the dashboard.</p>
                     </div>
 
-                    <div id="dashboardContent" class="dash-grid sellora-board">
+<div id="dashboardContent">
+<div class="dash-grid sellora-board legacy-board" aria-hidden="true">
                             <div class="kpi-row">
                                 <div class="kpi-wrap">
                                     <div class="card kpi-card">
@@ -1452,7 +2180,100 @@
                                 </div>
                             </div>
                     </div>
+<div class="sentra-board">
+                    <div class="s-row s-row1">
+                        <div class="s-card s-insights">
+                            <div class="s-card-head">
+                                <h3>Sentra &middot; Security insights</h3>
+                                <span class="s-live"><span class="dot"></span>Live &middot; updated 2 min ago</span>
+                            </div>
+                            <div class="metrics">
+                                <div class="metric">
+                                    <div class="metric-top">
+                                        <div>
+                                            <span class="m-label">Security score</span>
+                                            <span class="m-badge b-protected">PROTECTED</span>
+                                        </div>
+                                        <div class="m-num">78<span class="m-suf">/100</span></div>
+                                    </div>
+                                    <div class="m-chart"><canvas id="sparkScore"></canvas></div>
+                                    <p class="m-desc">Gain 12 points by completing 3 priority recommendations.</p>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-top">
+                                        <div>
+                                            <span class="m-label">Open incidents</span>
+                                            <span class="m-badge b-attention">NEEDS ATTENTION</span>
+                                        </div>
+                                        <div class="m-num">6</div>
+                                    </div>
+                                    <div class="m-chart"><canvas id="sparkIncidents"></canvas></div>
+                                    <p class="m-desc">3 new in the last 24 hours. Review high-risk alerts first.</p>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-top">
+                                        <div>
+                                            <span class="m-label">Risky devices</span>
+                                            <span class="m-badge b-action">ACTION NEEDED</span>
+                                        </div>
+                                        <div class="m-num"><span id="riskCount">8</span><span class="m-suf">/<span id="riskTotal">48</span></span></div>
+                                    </div>
+                                    <div class="m-chart"><canvas id="sparkRisky"></canvas></div>
+                                    <p class="m-desc">2 need isolation &middot; 6 need updates. Keep your devices protected.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="s-card s-health">
+                            <div class="s-card-head">
+                                <h3>Device health</h3>
+                                <span class="h-round"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/></svg></span>
+                            </div>
+                            <div class="donut-wrap">
+                                <canvas id="healthDonut"></canvas>
+                                <div class="donut-center"><strong id="healthTotal">48</strong><span>devices monitored</span></div>
+                                <div class="donut-badge"><strong id="healthPct">83%</strong><span id="healthLbl">safe devices</span></div>
+                            </div>
+                            <div class="health-legend" id="healthLegend"></div>
+                        </div>
+                    </div>
+                    <div class="s-row s-row2">
+                        <div class="s-card s-risk">
+                            <div class="s-card-head">
+                                <h3>Device risk</h3>
+                                <span class="h-round"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 4.5v15h15"/><path d="M8.5 16v-4.5"/><path d="M12.5 16V8"/><path d="M16.5 16v-6"/></svg></span>
+                            </div>
+                            <p class="risk-sub">Highest-risk devices &middot; review and take action</p>
+                            <div class="risk-bars" id="riskBars"></div>
+                        </div>
+                        <div class="s-card s-airec">
+                            <div class="airec-head">
+                                <div class="airec-title"><h3>AI recommendations</h3><span class="airec-badge">3 actions</span></div>
+                                <span class="airec-score"><b>78 &rarr; 90</b> potential score</span>
+                            </div>
+                            <div class="airec-table">
+                                <div class="airec-row head"><span>Action</span><span>3 actionable recommendations</span><span style="text-align:right">Review</span><span style="text-align:right">Impact</span></div>
+                                <div id="airecBody"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="s-card s-incidents">
+                        <div class="s-card-head">
+                            <div class="inc-title-row"><h3>Recent incidents</h3><span class="inc-badge" id="incOpenBadge">6 open</span></div>
+                            <button type="button" class="inc-view" id="incViewBtn" onclick="toggleIncidents()">View all incidents
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/></svg>
+                            </button>
+                        </div>
+                        <div class="inc-scroll">
+                            <table class="inc-table">
+                                <colgroup><col style="width:381px"><col style="width:105px"><col style="width:102px"><col style="width:84px"><col style="width:74px"><col style="width:104px"><col style="width:30px"></colgroup>
+                                <thead><tr><th>Incident</th><th>Affected device</th><th>Owner</th><th>Severity</th><th>Detected</th><th>Status</th><th></th></tr></thead>
+                                <tbody id="incBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+</div>
+</div>
 
                 <div id="assetsSection" class="section hidden">
                     <div class="card tx-card mt-2">
@@ -1678,6 +2499,8 @@
     let selectedBranch = 'ALL';
     let activeMonth = null;
     let typeChart, statusChart, brandChart, decomChart, insightChart;
+    let sentraCharts = { score: null, inc: null, risk: null, health: null };
+    let incidentsExpanded = false;
 
     if (window.Chart) {
         Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
@@ -1690,7 +2513,7 @@
     }
 
     const PAGE_COPY = {
-        dashboard: ['Dashboard', 'Inventory overview and procurement insights'],
+        dashboard: ['Overview', "Your business, protected. Here's what needs your attention today."],
         assets: ['Asset Register', 'Search and manage individual devices'],
         quantities: ['Asset Quantities', 'Filter inventory by type, condition, and status'],
         upload: ['Upload Excel', 'Import a new monthly asset file'],
@@ -2175,6 +2998,7 @@
             if (brandChart) brandChart.destroy();
             if (decomChart) decomChart.destroy();
             if (insightChart) insightChart.destroy();
+            destroySentraCharts();
             document.getElementById('brandTableBody').innerHTML = '';
             document.getElementById('laptopRecommendations').innerHTML = '';
             document.getElementById('marketLeadersBody').innerHTML = '';
@@ -2191,6 +3015,7 @@
         renderLaptopRecommendations(filtered);
         renderMarketLeaders(filtered);
         renderTopAssets(filtered);
+        renderSentraBoard(filtered);
     }
 
     function updateKPIs(filtered) {
@@ -2415,7 +3240,194 @@
         }
     }
 
-    function renderMarketLeaders(filtered) {
+
+    // ================= Sentra board =================
+    // Sample security data (no backend resource exists for these views).
+    // Kept separate from UI code; replace when a real incidents/recommendations API exists.
+    const SENTRA_INCIDENTS = [
+        { t: 'Suspicious outbound connection', ref: 'INC-1042 \u00b7 Endpoint detection', dev: 'AV-MAC-007', owner: 'Alex Morgan', sev: 'high', sevL: 'High', det: '12 min ago', st: 'Needs isolation', stC: '' },
+        { t: 'Malware detected', ref: 'INC-1041 \u00b7 Endpoint detection', dev: 'AV-MAC-007', owner: 'Sam Rivera', sev: 'high', sevL: 'High', det: '38 min ago', st: 'Needs isolation', stC: '' },
+        { t: 'Missing critical security patch', ref: 'INC-1040 \u00b7 Patch management', dev: 'AV-LAP-012', owner: 'Priya Nair', sev: 'medium', sevL: 'Medium', det: '1 hr ago', st: 'Updates pending', stC: 'watch' },
+        { t: 'Repeated failed sign-ins', ref: 'INC-1039 \u00b7 Identity protection', dev: 'AV-PC-003', owner: 'Jordan Blake', sev: 'medium', sevL: 'Medium', det: '3 hrs ago', st: 'Under review', stC: 'watch' },
+        { t: 'Unusual admin access', ref: 'INC-1038 \u00b7 Access review', dev: 'AV-PC-015', owner: 'Sam Rivera', sev: 'low', sevL: 'Low', det: '6 hrs ago', st: 'Resolved', stC: 'ok' },
+        { t: 'Outdated endpoint agent', ref: 'INC-1037 \u00b7 Patch management', dev: 'AV-LAP-031', owner: 'Alex Morgan', sev: 'low', sevL: 'Low', det: '9 hrs ago', st: 'Resolved', stC: 'ok' }
+    ];
+    const SENTRA_RECS = [
+        { name: 'Isolate devices', desc: 'Disconnect AV-LAP-012 and AV-MAC-007 to prevent threats from spreading.', btn: 'Isolate now', primary: true, imp: '+5 pts', impC: 'pos', done: 'Isolated' },
+        { name: 'Update devices', desc: 'Install security patches on 6 devices. Schedule outside working hours.', btn: 'Schedule', primary: false, imp: '-5 pts', impC: 'neg', done: 'Scheduled' },
+        { name: 'Enable MFA', desc: 'Send verification requests to the 3 accounts without multi-factor protection.', btn: 'Send request', primary: false, imp: '+5 pts', impC: 'pos', done: 'Request sent' },
+        { name: 'Enable MFA', desc: 'Send verification requests to the 3 accounts without multi-factor protection.', btn: 'Send request', primary: false, imp: '+5 pts', impC: 'pos', done: 'Request sent' }
+    ];
+    const SENTRA_RISK = [
+        { dev: 'AV-LAP-012', pct: 84, badge: 'b-dark' },
+        { dev: 'AV-PC-003', pct: 52, badge: 'b-plain' },
+        { dev: 'AV-MAC-007', pct: 92, badge: 'b-blue' },
+        { dev: 'AV-PC-003', pct: 68, badge: 'b-plain' },
+        { dev: 'AV-PC-003', pct: 41, badge: 'b-plain' }
+    ];
+
+    function destroySentraCharts() {
+        Object.keys(sentraCharts).forEach(function (k) {
+            if (sentraCharts[k]) { try { sentraCharts[k].destroy(); } catch (e) {} sentraCharts[k] = null; }
+        });
+    }
+
+    function sparklineOpts(color, fill) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 600 },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true, displayColors: false,
+                    backgroundColor: '#fff', titleColor: '#1C1F23', bodyColor: '#5F646B',
+                    borderColor: '#E6E9ED', borderWidth: 1, padding: 8,
+                    titleFont: { size: 10, weight: '600' }, bodyFont: { size: 10 }
+                }
+            },
+            scales: {
+                x: { display: false },
+                y: { display: false, grace: '18%', grid: { color: '#F2F4F7', drawTicks: false }, border: { display: false } }
+            },
+            elements: { line: { borderColor: color, backgroundColor: fill, borderWidth: 1.8, tension: 0.35, fill: true }, point: { radius: 0, hoverRadius: 3.5, backgroundColor: color } },
+            interaction: { mode: 'index', intersect: false }
+        };
+    }
+
+    function renderSentraBoard(filtered) {
+        const total = filtered.length;
+        const inUse = filtered.filter(a => a.status && a.status.toUpperCase().includes('IN USE')).length;
+        const risky = Math.max(0, total - inUse);
+        const rc = document.getElementById('riskCount');
+        if (rc) rc.textContent = risky.toLocaleString('en-ZA');
+        const rt = document.getElementById('riskTotal');
+        if (rt) rt.textContent = total.toLocaleString('en-ZA');
+        const nc = document.getElementById('navDevicesCount');
+        if (nc) nc.textContent = '(' + total.toLocaleString('en-ZA') + ')';
+
+        // Device health: real status distribution from existing assets data
+        const statusCounts = {};
+        filtered.forEach(a => { const k = a.status || 'Unknown'; statusCounts[k] = (statusCounts[k] || 0) + 1; });
+        const entries = Object.entries(statusCounts).sort((a, b) => b[1] - a[1]);
+        const palette = ['#4285F4', '#FF7043', '#F04438', '#FACC15', '#A47AF3', '#72BE7C'];
+        const labels = entries.map(e => e[0]);
+        const values = entries.map(e => e[1]);
+        const sum = values.reduce((s, v) => s + v, 0) || 1;
+        const ht = document.getElementById('healthTotal');
+        if (ht) ht.textContent = total.toLocaleString('en-ZA');
+        const hp = document.getElementById('healthPct');
+        if (hp) hp.textContent = Math.round((values[0] || 0) / sum * 100) + '%';
+        const hl = document.getElementById('healthLbl');
+        if (hl) hl.textContent = String(labels[0] || '').toLowerCase();
+        const legend = document.getElementById('healthLegend');
+        if (legend) {
+            legend.innerHTML = entries.map((e, i) => {
+                const pct = Math.round(e[1] / sum * 100);
+                return '<div class="hlg-row">' +
+                    '<span class="dot" style="background:' + palette[i % palette.length] + '"></span>' +
+                    '<span class="hlg-name">' + escapeHtml(e[0]) + '</span>' +
+                    '<span class="hlg-count">(' + e[1].toLocaleString('en-ZA') + ')</span>' +
+                    '<span class="hlg-pct">' + pct + '%</span>' +
+                    '</div>';
+            }).join('');
+        }
+        const donut = document.getElementById('healthDonut');
+        if (donut && typeof Chart !== 'undefined') {
+            if (sentraCharts.health) { try { sentraCharts.health.destroy(); } catch (e) {} sentraCharts.health = null; }
+            sentraCharts.health = new Chart(donut.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels.length ? labels : ['No data'],
+                    datasets: [{ data: values.length ? values : [1], backgroundColor: palette, borderWidth: 0, spacing: 2 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '84%', animation: { duration: 600 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#fff', titleColor: '#1C1F23', bodyColor: '#5F646B', borderColor: '#E6E9ED', borderWidth: 1, padding: 8, titleFont: { size: 10, weight: '600' }, bodyFont: { size: 10 } }
+                    }
+                }
+            });
+        }
+
+        // Security metric sparklines (sample series for security score / incidents)
+        if (typeof Chart !== 'undefined') {
+            const specs = [
+                ['sparkScore', 'score', '#4285F4', 'rgba(66,133,244,0.13)', [64, 64, 64.5, 65, 65.5, 66.5, 72, 76.5, 78, 78, 78, 78], 7],
+                ['sparkIncidents', 'inc', '#FF7043', 'rgba(255,112,67,0.11)', [2.2, 2.2, 2.1, 1.5, 1.5, 4.4, 5.1, 4.6, 4.5, 4.5, 4.5, 4.5], 5],
+                ['sparkRisky', 'risk', '#FACC15', 'rgba(250,204,21,0.15)', [7, 7, 7, 7.4, 7.6, 8.2, 8.3, 7.9, 7.7, 7.6, 7.6, 7.6], 5]
+            ];
+            specs.forEach(function (s) {
+                const el = document.getElementById(s[0]);
+                if (!el) return;
+                if (sentraCharts[s[1]]) { try { sentraCharts[s[1]].destroy(); } catch (e) {} sentraCharts[s[1]] = null; }
+                const pts = s[4].map((v, i) => i === s[5] ? 3 : 0);
+                sentraCharts[s[1]] = new Chart(el.getContext('2d'), {
+                    type: 'line',
+                    data: { labels: s[4].map((_, i) => i), datasets: [{ data: s[4], pointRadius: pts, pointHoverRadius: 3.5 }] },
+                    options: sparklineOpts(s[2], s[3])
+                });
+            });
+        }
+
+        // Device risk bars (sample)
+        const bars = document.getElementById('riskBars');
+        if (bars) {
+            bars.innerHTML = SENTRA_RISK.map(function (r) {
+                const h = Math.round(r.pct * 1.125);
+                const fill = r.badge === 'b-blue' ? 'solid' : 'striped';
+                return '<div class="risk-col" title="' + escapeHtml(r.dev) + ' \u00b7 ' + r.pct + '% risk">' +
+                    '<span class="risk-badge ' + r.badge + '">' + r.pct + '% risk</span>' +
+                    '<div class="risk-bar ' + fill + '" style="height:' + h + 'px"></div>' +
+                    '<span class="risk-dev">' + escapeHtml(r.dev) + '</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // AI recommendations (sample)
+        const recBody = document.getElementById('airecBody');
+        if (recBody) {
+            recBody.innerHTML = SENTRA_RECS.map(function (r) {
+                return '<div class="airec-row airec-body">' +
+                    '<span class="a-name">' + escapeHtml(r.name) + '</span>' +
+                    '<span class="a-desc">' + escapeHtml(r.desc) + '</span>' +
+                    '<span class="a-review"><button type="button" class="airec-btn' + (r.primary ? ' primary' : '') + '" data-done="' + escapeHtml(r.done) + '" onclick="if(!this.classList.contains(\'done\')){this.classList.add(\'done\');this.textContent=this.getAttribute(\'data-done\');}">' + escapeHtml(r.btn) + '</button></span>' +
+                    '<span class="a-impact"><span class="impact ' + r.impC + '">' + r.imp + '</span></span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        renderIncidentRows();
+    }
+
+    function renderIncidentRows() {
+        const body = document.getElementById('incBody');
+        if (!body) return;
+        const rows = incidentsExpanded ? SENTRA_INCIDENTS : SENTRA_INCIDENTS.slice(0, 3);
+        const badge = document.getElementById('incOpenBadge');
+        if (badge) badge.textContent = SENTRA_INCIDENTS.length + ' open';
+        const btn = document.getElementById('incViewBtn');
+        if (btn) btn.childNodes[0].nodeValue = incidentsExpanded ? 'Show recent incidents ' : 'View all incidents ';
+        body.innerHTML = rows.map(function (r) {
+            return '<tr>' +
+                '<td><span class="inc-t">' + escapeHtml(r.t) + '</span><span class="inc-r">' + escapeHtml(r.ref) + '</span></td>' +
+                '<td>' + escapeHtml(r.dev) + '</td>' +
+                '<td>' + escapeHtml(r.owner) + '</td>' +
+                '<td><span class="sev ' + r.sev + '">' + r.sevL + '</span></td>' +
+                '<td class="td-detected">' + escapeHtml(r.det) + '</td>' +
+                '<td><span class="st ' + r.stC + '"><span class="dot"></span>' + escapeHtml(r.st) + '</span></td>' +
+                '<td><span class="inc-act" title="Open incident"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/></svg></span></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    function toggleIncidents() {
+        incidentsExpanded = !incidentsExpanded;
+        renderIncidentRows();
+    }
+
+        function renderMarketLeaders(filtered) {
         const typeCounts = {};
         const typeValue = {};
         filtered.forEach(a => {
@@ -2428,6 +3440,7 @@
         const bars = document.getElementById('leadersBars');
         if (bars) bars.innerHTML = '';
         const body = document.getElementById('marketLeadersBody');
+        if (!body) return;
         const fills = ['96%', '88%', '80%', '75%', '72%'];
         body.innerHTML = top.map(([name, count], i) => {
             const pct = Math.min(99, Math.round((count / max) * parseInt(fills[i], 10)));
